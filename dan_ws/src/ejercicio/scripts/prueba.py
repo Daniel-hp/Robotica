@@ -51,12 +51,13 @@ class Mapa:  # Matriz de celdas
     #Dados tres puntos regresa la orientacion
     @staticmethod
     def orientacion(x1,y1,x2,y2,x3,y3):
-       # print str(x1)+ str(x1)+str(y1)+str(x2)+str(y2)+str(x3)+str(y3)
         val = (y2 - y1) * (x3-x2) - (x2 - x1) * (y3-y2)
         if val == 0:
             return 0
         return 1 if val > 0 else 2
 
+    # Dados cuatro puntos dice si la linea (x1,y1)-(x2-y2) intersecta
+    # con la linea (x3-y3)-(x4-y4)
     @staticmethod
     def interseccion(x1,y1,x2,y2,x3,y3,x4, y4):
         o1 = Mapa.orientacion(x1,y1,x2,y2,x3,y3)
@@ -76,12 +77,10 @@ class Mapa:  # Matriz de celdas
 
         return False
 
-    #doIntersect(Point p1, Point q1, Point p2, Point q2)
+    # Dice si el punto (x0,y0) se encuentra dentro de la lista de obstaculos
     @staticmethod
     def dentroDe(longitud, vertices, x0,y0):
-        inf = 100000000000000000000000
-        #if longitud <= 3:
-        #    return False
+        inf =10000000000000000000000000000
         contador = 0
         i =0
         # Se sale del ciclo
@@ -98,44 +97,46 @@ class Mapa:  # Matriz de celdas
             if i == 0:
                 break
         return True if contador%2 == 1 else False
+    @staticmethod
+    def dijkstra():
+
     def dibuja(self):
         k = Canvas(self.master, width=self.diccionario['longx'], height=self.diccionario['longy'])
         k.pack()
-        genera = 100
-        for x in range(self.diccionario['longx']):
-            for y in range(self.diccionario['longy']):
-                x1 = x
-                y1 = y
-                x2 = x1
-                y2 = y1
-                entro = False
+        genera = 200
+        while genera > 0:
+            entro = False
+            x = randint(0,self.diccionario['longx'])
+            y = randint(0,self.diccionario['longx'])
+
+            # Verifica no exista el nodo ya en la lista
+            for z in range(len(self.nodos)):
+                a = Nodo(x,y,[])
+
+                if a == self.nodos[z]:
+                    entro = True
+            # Si no esta en la lista verifica no sea un obstaculo
+            if not entro:
                 for z in range(len(self.obstaculos)):
-                    if (x,y) in self.obstaculos[z]:
-                        k.create_rectangle(x1, y1, x2, y2, fill="blue")
+                    if (x, y) in self.obstaculos[z]:
                         entro = True
-                if not entro:
-                    for z in self.obstaculos:
-                        if Mapa.dentroDe(len(z), z,x,y):
-                            entro = True
-                            break
-
-                if not entro and genera >= 0:
-                    lr = 2
-                    ## Cambiar por que genera aleatoriamente la coordenada x y la coordenada y
-                    if randint(0,500) == 0:
-                        k.create_oval(x2, y2, x2, y2, fill="red")
-                        genera -= 1
-                        self.nodos.append(Nodo(x,y,[]))
-                #k.create_oval(x1,y1,x2,y2, fill=color, tags="rect")
-                # k.create_rectangle(0+x,0+y,self.diccionario['tamcelda']+x,self.diccionario['tamcelda']+y)
-                # k.create_rectangle(y,x,y+10,x+10, fill="red")
-                #color = "blue"
-
+            # Si no esta en la lista ni es obstaculo verifica no esta dentro de un obstaculo
+            if not entro:
+                for z in self.obstaculos:
+                    if Mapa.dentroDe(len(z), z, x, y):
+                        entro = True
+                        break
+            # Si no entro se genera el nodo  y se disminuye en 1 el genera
+            if not entro:
+                if randint(0, 500) == 0:
+                    k.create_oval(x, y, x, y, fill="red")
+                    genera -= 1
+                    self.nodos.append(Nodo(x, y, []))
         lista_lineas=[]
+               # Para dibujar la linea entre los obstasculos
         for z in range(len(self.obstaculos)):
             for x in range(len(self.obstaculos[z])):
                 for y in range(len(self.obstaculos[z])):
-
                     x0 = self.obstaculos[z][x][0]
                     y0 = self.obstaculos[z][x][1]
                     x1 = self.obstaculos[z][y][0]
@@ -143,14 +144,13 @@ class Mapa:  # Matriz de celdas
                     if x0 != x1 and y0 != y1:
                         seEncuentra = False
                         for al in lista_lineas:
-                            # Agregar punto flotante al str
                             arr = [int(k.coords(al)[0]),int(k.coords(al)[1]),int(k.coords(al)[2]),int(k.coords(al)[3])]
                             if arr == [x1,y1,x0,y0]:
                                 seEncuentra = True
                         if not seEncuentra:
                             alfa = k.create_line(x0, y0, x1, y1, fill="red" )
                             lista_lineas.append(alfa)
-
+        # Para dibujar la linea entre los puntos verificando estas no choquen y
         for x in range(len(self.nodos)):
             for y in range(len(self.nodos)):
                 if self.nodos[x] != self.nodos[y]:
@@ -158,19 +158,15 @@ class Mapa:  # Matriz de celdas
                     y0 = self.nodos[x].coordy
                     x1 = self.nodos[y].coordx
                     y1 = self.nodos[y].coordy
-                    if abs(x0 - x1) < 100 and abs(y0 - y1) < 100:
+                    if abs(x0 - x1) < 80 and abs(y0 - y1) < 80:
                         bool = True
                         for z in lista_lineas:
                             alfa = k.coords(z)
-
-                            #print str(alfa)
-                            #print "["+str(x0) + "," + str(y0) + "," + str(x1) + "," + str(y1) + "]|[" + str(alfa[0]) + "," + str(alfa[1]) + "," + str(alfa[2]) + "," + str(alfa[3]) + "]"
-                            #print Mapa.interseccion(x0,y0, x1, y1 , alfa[0], alfa[1], alfa[2], alfa[3])
                             if Mapa.interseccion(x0, y0, x1, y1, alfa[0], alfa[1], alfa[2], alfa[3]):
                                 bool = False
                         if bool:
                             self.nodos[x].agregaAdyacente(self.nodos[y])
-                            alfa = k.create_line(x0, y0, x1, y1)
+                            k.create_line(x0, y0, x1, y1)
 
         def exitros():
             if rospy.is_shutdown():
@@ -182,11 +178,4 @@ class Mapa:  # Matriz de celdas
 
 if __name__ == '__main__':
     m1 = Mapa(500,500,[[(0,0),(150,200),(300,110)]])
-    # print m1.matriz
-    # mainloop()
     m1.dibuja()
-    #print Mapa.chocan(1,3,3,3,1,2,3,2)
-   ##    print Mapa.interseccion(1,20,50,0,0,0,150,150)
-    #print Mapa.interseccion(32,37,94,565,260, 226,2,1)
-####
-    #####
