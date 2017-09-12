@@ -3,29 +3,9 @@ import rospy
 from std_msgs.msg import String
 from Tkinter import *
 from random import randint
-
-class Nodo:  # Representa a un punto dentro del mapa
-    def __init__(self,coordx, coordy, listaAdyacentes=[]):
-        self.coordx = coordx
-        self.coordy = coordy
-        self.listaAdyacentes = listaAdyacentes
-
-    def agregaAdyacente(self, nodo):
-        self.listaAdyacentes.append(nodo)
-
-    def dameCoordenadax(self):
-        return self.coordx
-
-    def dameCoordenaday(self):
-        return self.coordy
-
-    def __eq__(self, other):
-        return self.coordx == other.coordx and self.coordy == other.coordy
-
-    def __repr__(self):
-        return "Coordenada x" + str(self.coordx) + " Coordenada y" + str(self.coordy) \
-               + " Adyacentes: " + "".join([str(i) for i in self.listaAdyacentes])
-    # TODO clase robot
+from collections import deque
+import Queue
+# TODO clase robot
     # class Robot: # Robot que se movera
     # def __init__(self, x, y):
     #	self.coordenadax = x
@@ -97,8 +77,6 @@ class Mapa:  # Matriz de celdas
             if i == 0:
                 break
         return True if contador%2 == 1 else False
-    @staticmethod
-    def dijkstra():
 
     def dibuja(self):
         k = Canvas(self.master, width=self.diccionario['longx'], height=self.diccionario['longy'])
@@ -174,6 +152,112 @@ class Mapa:  # Matriz de celdas
             self.master.after(ROS_RATE, exitros)
         self.master.after(ROS_RATE, exitros)
         mainloop()
+
+class Nodo:  # Representa a un punto dentro del mapa
+    def __init__(self, coordx, coordy, listaAdyacentes=[]):
+        self.coordx = coordx
+        self.coordy = coordy
+        self.listaAdyacentes = listaAdyacentes
+        self.hn = 0
+        self.gn = 0
+        self.visitado = False
+        self.sol = False
+        self.listaCerrada = False
+        self.listaAbierta = False
+
+    def dameVisitado(self):
+        return self.visitado
+
+    def damefn(self):
+        return self.gn + self.hn()
+
+    def damehn(self):
+        return self.hn
+
+    def agregaAdyacente(self, nodo):
+        self.listaAdyacentes.append(nodo)
+
+    def dameAdyacentes(self):
+        return self.listaAdyacentes
+
+    def dameCoordenadax(self):
+        return self.coordx
+
+    def dameCoordenaday(self):
+        return self.coordy
+
+    def __key(self):
+        return (self.coordx,self.coordy)
+
+    def __eq__(self, other):
+        return self.__key() == other.__key()
+
+
+    def __repr__(self):
+        return "Coordenada x" + str(self.coordx) + " Coordenada y" + str(self.coordy) \
+               + " Adyacentes: " + "".join([str(i) for i in self.listaAdyacentes])
+    def __hash__(self):
+        return hash(self.__key())
+
+class AEstrella:
+    def __init__(self,inicio,meta, nodos = []):
+        self.inicio = inicio
+        self.meta = meta
+        self.nodos = nodos
+        self.listaAbierta = Queue.PriorityQueue()
+        self.listaCerrada = {}
+        self.resuleto = False
+        inicio.hn = AEstrella.calculaHeuristica(inicio,meta)
+        self.listaAbierta.put(inicio)
+
+    @staticmethod
+    def calculaHeuristica(n1,n2):
+        return math.hypot(n2.dameCoordenadax - n1.dameCoordenadax,
+                          n2.dameCoordenaday - n1.dameCoordenaday)
+
+    def expandeNodoSiguiente(self):
+        if self.resuleto:
+            return
+        nodoActual = self.listaAbierta.get()
+        self.listaCerrada[nodoActual.estado] = nodoActual.estado
+        if nodoActual.estado == self.meta
+            self.resuleto = True
+            tmp = nodoActual
+            while tmp.estado != self.inicio:
+                tmp.estado.sol = True
+                tmp = tmp.padre
+        else:
+            suc = nodoActual.getSucesores()
+            for sucesor in suc:
+                if not sucesor.estado.listaCerrada:
+                    if not sucesor.estado.listaAbierta:
+                        sucesor.estado.calculaHeuristica()
+                        sucesor.estado.gn = sucesor.gn
+ // implementar offer
+
+
+class NodoBusqueda:
+    def __init__(self, padre,estado, gn):
+        self.padre = padre
+        self.estado = estado
+        self.gn = gn
+
+    def dameFn(self):
+        estado.damehn() + self.gn
+
+    def calculaDistancia(self, n1):
+        return math.hypot(self.estado.dameCoordenadax - n1.dameCoordenadax,
+                          self.estado.dameCoordenaday - n1.dameCoordenaday)
+
+    def getSucesores(self):
+        sucesores = deque()
+        for x in estado.dameAdyacentes():
+            nodoSucesor = NodoBusqueda(self,x,self.gn + self.calculaDistancia(x))
+            sucesores.append(nodoSucesor)
+        return sucesores
+
+    def compara(self,nb1):
+        return self.dameFn() - nb1.dameFn()
 
 
 if __name__ == '__main__':
