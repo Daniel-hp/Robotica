@@ -4,6 +4,7 @@ from std_msgs.msg import String
 from Tkinter import *
 from random import randint
 from collections import deque
+import math
 import Queue
 # TODO clase robot
     # class Robot: # Robot que se movera
@@ -136,7 +137,7 @@ class Mapa:  # Matriz de celdas
                     y0 = self.nodos[x].coordy
                     x1 = self.nodos[y].coordx
                     y1 = self.nodos[y].coordy
-                    if abs(x0 - x1) < 80 and abs(y0 - y1) < 80:
+                    if abs(x0 - x1) <  50 and abs(y0 - y1) < 50:
                         bool = True
                         for z in lista_lineas:
                             alfa = k.coords(z)
@@ -193,9 +194,10 @@ class Nodo:  # Representa a un punto dentro del mapa
         return self.__key() == other.__key()
 
 
+    def __str__(self):
+        return  "("+str(self.coordx) + " , " + str(self.coordy)+")"
     def __repr__(self):
-        return "Coordenada x" + str(self.coordx) + " Coordenada y" + str(self.coordy) \
-               + " Adyacentes: " + "".join([str(i) for i in self.listaAdyacentes])
+        return "("+str(self.coordx) + " , " + str(self.coordy) + ")"
     def __hash__(self):
         return hash(self.__key())
 
@@ -206,34 +208,46 @@ class AEstrella:
         self.nodos = nodos
         self.listaAbierta = Queue.PriorityQueue()
         self.listaCerrada = {}
+        self.solucion = []
         self.resuleto = False
         inicio.hn = AEstrella.calculaHeuristica(inicio,meta)
-        self.listaAbierta.put(inicio)
+        self.nodoActual = None
+        self.nodoPrevio = NodoBusqueda(None,inicio,0)
+        self.solucion.append(self.nodoPrevio)
+        self.listaAbierta.put(self.nodoPrevio)
 
     @staticmethod
     def calculaHeuristica(n1,n2):
-        return math.hypot(n2.dameCoordenadax - n1.dameCoordenadax,
-                          n2.dameCoordenaday - n1.dameCoordenaday)
+
+        return math.hypot(n2.dameCoordenadax() - n1.dameCoordenadax(),
+                          n2.dameCoordenaday() - n1.dameCoordenaday())
 
     def expandeNodoSiguiente(self):
         if self.resuleto:
             return
-        nodoActual = self.listaAbierta.get()
-        self.listaCerrada[nodoActual.estado] = nodoActual.estado
-        if nodoActual.estado == self.meta
+        self.nodoActual = self.listaAbierta.get()
+        self.listaCerrada[self.nodoPrevio.estado] = self.nodoPrevio.estado
+        self.nodoPrevio.estado.listaCerrada=True
+        if self.nodoActual.estado == self.meta:
             self.resuleto = True
-            tmp = nodoActual
+            tmp = self.nodoActual
             while tmp.estado != self.inicio:
+                self.solucion.append(tmp)
                 tmp.estado.sol = True
                 tmp = tmp.padre
         else:
-            suc = nodoActual.getSucesores()
+            suc = self.nodoActual.getSucesores()
             for sucesor in suc:
                 if not sucesor.estado.listaCerrada:
                     if not sucesor.estado.listaAbierta:
-                        sucesor.estado.calculaHeuristica()
+                        sucesor.estado.hn = AEstrella.calculaHeuristica(sucesor.estado, self.meta)
                         sucesor.estado.gn = sucesor.gn
- // implementar offer
+                        self.listaAbierta.put(sucesor)
+                        sucesor.estado.listaCerrada = True
+                else:
+                    sucesor.estado.gn = sucesor.gn
+                    sucesor.estado.padre = sucesor.padre.estado
+        self.nodoPrevio = self.nodoActual
 
 
 class NodoBusqueda:
@@ -243,23 +257,37 @@ class NodoBusqueda:
         self.gn = gn
 
     def dameFn(self):
-        estado.damehn() + self.gn
+        return self.estado.damehn() + self.gn
 
     def calculaDistancia(self, n1):
-        return math.hypot(self.estado.dameCoordenadax - n1.dameCoordenadax,
-                          self.estado.dameCoordenaday - n1.dameCoordenaday)
+        return math.hypot(self.estado.dameCoordenadax() - n1.dameCoordenadax(),
+                          self.estado.dameCoordenaday() - n1.dameCoordenaday())
 
     def getSucesores(self):
         sucesores = deque()
-        for x in estado.dameAdyacentes():
+        for x in self.estado.dameAdyacentes():
             nodoSucesor = NodoBusqueda(self,x,self.gn + self.calculaDistancia(x))
             sucesores.append(nodoSucesor)
         return sucesores
 
-    def compara(self,nb1):
+    def __cmp__(self,nb1):
         return self.dameFn() - nb1.dameFn()
+
+    def __repr__(self):
+        return str(self.estado)
 
 
 if __name__ == '__main__':
     m1 = Mapa(500,500,[[(0,0),(150,200),(300,110)]])
     m1.dibuja()
+
+    alg = AEstrella(m1.nodos[0], m1.nodos[-1], m1.nodos)
+    while not alg.resuleto:
+        alg.expandeNodoSiguiente()
+    print alg.nodoActual
+    print alg.meta
+    print alg.inicio
+    print alg.solucion
+    # Hacer que en TKinter se muestre el resultado
+    # Verificar se hace correctamente el algoritmo
+    # Penalizar si hay un angulo pequenho entre tres pares de aristas
