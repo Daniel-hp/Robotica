@@ -17,11 +17,12 @@ ROS_RATE = 10
 
 
 class Mapa:  # Matriz de celdas
-    def __init__(self,longx, longy, obstaculos = [[]], nodos = []):
+    def __init__(self,longx, longy, obstaculos = [[]], nodos = [], m = 1):
         self.obstaculos = obstaculos
         self.diccionario = {'longx': longx, 'longy': longy}
         self.nodos= nodos
         self.master = Tk()
+        self.m=m
     #Dados tres puntos dice si se encuentra en el misom segmento
     @staticmethod
     def enSegmento(x1,y1,x2,y2,x3,y3):
@@ -80,9 +81,15 @@ class Mapa:  # Matriz de celdas
         return True if contador%2 == 1 else False
 
     def dibuja(self):
+
+        self.nodos.append(Nodo(0, 250, []))
+
+        self.nodos.append(Nodo(499, 499, []))
         k = Canvas(self.master, width=self.diccionario['longx'], height=self.diccionario['longy'])
         k.pack()
-        genera = 200
+        k.create_oval(0, 499, 0, 499, fill="red")
+        k.create_oval(499, 499, 499, 499, fill="red")
+        genera = 80
         while genera > 0:
             entro = False
             x = randint(0,self.diccionario['longx'])
@@ -137,7 +144,7 @@ class Mapa:  # Matriz de celdas
                     y0 = self.nodos[x].coordy
                     x1 = self.nodos[y].coordx
                     y1 = self.nodos[y].coordy
-                    if abs(x0 - x1) <  50 and abs(y0 - y1) < 50:
+                    if abs(x0 - x1) <  100 and abs(y0 - y1) < 100:
                         bool = True
                         for z in lista_lineas:
                             alfa = k.coords(z)
@@ -212,8 +219,7 @@ class AEstrella:
         self.resuleto = False
         inicio.hn = AEstrella.calculaHeuristica(inicio,meta)
         self.nodoActual = None
-        self.nodoPrevio = NodoBusqueda(None,inicio,0)
-        self.solucion.append(self.nodoPrevio)
+        self.nodoPrevio = NodoBusqueda(None,inicio)
         self.listaAbierta.put(self.nodoPrevio)
 
     @staticmethod
@@ -235,6 +241,7 @@ class AEstrella:
                 self.solucion.append(tmp)
                 tmp.estado.sol = True
                 tmp = tmp.padre
+            self.solucion.append(tmp)
         else:
             suc = self.nodoActual.getSucesores()
             for sucesor in suc:
@@ -251,22 +258,42 @@ class AEstrella:
 
 
 class NodoBusqueda:
-    def __init__(self, padre,estado, gn):
+    def __init__(self, padre,estado, m=1):
         self.padre = padre
         self.estado = estado
+        self.m = m
+# Verificar cuando calcular lo del angulo
+    def setGn(self, gn):
         self.gn = gn
-
+    def calculahn(self):
+        return 0
     def dameFn(self):
-        return self.estado.damehn() + self.gn
+        return self.estado.damehn() + 0#self.gn
 
     def calculaDistancia(self, n1):
         return math.hypot(self.estado.dameCoordenadax() - n1.dameCoordenadax(),
                           self.estado.dameCoordenaday() - n1.dameCoordenaday())
 
+    # Dado un punto n, calcula el angulo que se forma al intentar llegar a este, dado que hay
+    def calculaAngulo(self,n1):
+        # Si el nodo es el inicio  no hay angulo que calcular
+        if self.padre == None:
+            return 1
+        a = self.padre.estado
+        b = self.estado
+        c = n1.estado
+
+        ab = (b.dameCoordenadax() - a.dameCoordenadax(), b.dameCoordenaday() - a.dameCoordenaday())
+        bc = (c.dameCoordenadax()-b.dameCoordenadax(),c.dameCoordenaday()-b.dameCoordenaday())
+        numerador = (ab[0]*bc[0] + ab[1]*bc[1])
+        denominador = sqrt(pow(ab[0],2) + pow(ab[1],2)) *sqrt(pow(bc[0],2) + pow(bc[1],2))
+        return degrees(acos(numerador / denominador))
     def getSucesores(self):
         sucesores = deque()
         for x in self.estado.dameAdyacentes():
-            nodoSucesor = NodoBusqueda(self,x,self.gn + self.calculaDistancia(x))
+            #self.gn + self.calculaDistancia(x)
+            nodoSucesor = NodoBusqueda(self,x)
+            nodoSucesor.calculagn(self.gn + self.calculaDistancia(x) * (1 / pow(self.calculaAngulo(self),2)) * self.m)
             sucesores.append(nodoSucesor)
         return sucesores
 
@@ -280,14 +307,32 @@ class NodoBusqueda:
 if __name__ == '__main__':
     m1 = Mapa(500,500,[[(0,0),(150,200),(300,110)]])
     m1.dibuja()
-
-    alg = AEstrella(m1.nodos[0], m1.nodos[-1], m1.nodos)
-    while not alg.resuleto:
+    alg = AEstrella(m1.nodos[0], m1.nodos[1], m1.nodos)
+    num = 1000
+    while not alg.resuleto and num > 0:
         alg.expandeNodoSiguiente()
-    print alg.nodoActual
-    print alg.meta
-    print alg.inicio
-    print alg.solucion
-    # Hacer que en TKinter se muestre el resultado
-    # Verificar se hace correctamente el algoritmo
+        num -=1
+
+    master = Tk()
+    k = Canvas(master, width=500, height=500)
+    k.pack()
+
+    for x in range(len(alg.solucion)):
+        k.create_rectangle(alg.solucion[x].estado.dameCoordenadax(),
+                           alg.solucion[x].estado.dameCoordenaday(),
+                           alg.solucion[x].estado.dameCoordenadax(),
+                           alg.solucion[x].estado.dameCoordenaday()
+        )
+        # Para evitar hacer una linea de la meta al inicio
+        if x != len(alg.solucion)-1:
+            k.create_line(alg.solucion[x].estado.dameCoordenadax(),
+                      alg.solucion[x].estado.dameCoordenaday(),
+                      alg.solucion[(x+1)% len(alg.solucion)].estado.dameCoordenadax(),
+                      alg.solucion[(x+1)%len(alg.solucion)].estado.dameCoordenaday())
+
+
+
+    #master.after(ROS_RATE, exitros)
+    mainloop()
+
     # Penalizar si hay un angulo pequenho entre tres pares de aristas
