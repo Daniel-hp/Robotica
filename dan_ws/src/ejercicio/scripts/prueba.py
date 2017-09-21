@@ -89,7 +89,7 @@ class Mapa:  # Matriz de celdas
         k.pack()
         k.create_oval(0, 499, 0, 499, fill="red")
         k.create_oval(499, 499, 499, 499, fill="red")
-        genera = 80
+        genera = 350
         while genera > 0:
             entro = False
             x = randint(0,self.diccionario['longx'])
@@ -144,7 +144,7 @@ class Mapa:  # Matriz de celdas
                     y0 = self.nodos[x].coordy
                     x1 = self.nodos[y].coordx
                     y1 = self.nodos[y].coordy
-                    if abs(x0 - x1) <  100 and abs(y0 - y1) < 100:
+                    if abs(x0 - x1) <  50 and abs(y0 - y1) < 50:
                         bool = True
                         for z in lista_lineas:
                             alfa = k.coords(z)
@@ -211,7 +211,9 @@ class Nodo:  # Representa a un punto dentro del mapa
 class AEstrella:
     def __init__(self,inicio,meta, nodos = []):
         self.inicio = inicio
+        self.iinicioNB = NodoBusqueda(None,inicio)
         self.meta = meta
+        self.metaNB = NodoBusqueda(None,meta)
         self.nodos = nodos
         self.listaAbierta = Queue.PriorityQueue()
         self.listaCerrada = {}
@@ -247,8 +249,8 @@ class AEstrella:
             for sucesor in suc:
                 if not sucesor.estado.listaCerrada:
                     if not sucesor.estado.listaAbierta:
-                        sucesor.estado.hn = AEstrella.calculaHeuristica(sucesor.estado, self.meta)
-                        sucesor.estado.gn = sucesor.gn
+                        sucesor.estado.hn = sucesor.calculaDistancia(self.meta) + NodoBusqueda.calculaAngulo(sucesor,self.metaNB)
+                        sucesor.estado.gn = sucesor.gn + sucesor.calculaDistancia(sucesor.padre.estado) # Se agrega el costo dellegar al nodo
                         self.listaAbierta.put(sucesor)
                         sucesor.estado.listaCerrada = True
                 else:
@@ -261,6 +263,7 @@ class NodoBusqueda:
     def __init__(self, padre,estado, m=1):
         self.padre = padre
         self.estado = estado
+        self.gn = 0
         self.m = m
 # Verificar cuando calcular lo del angulo
     def setGn(self, gn):
@@ -268,32 +271,45 @@ class NodoBusqueda:
     def calculahn(self):
         return 0
     def dameFn(self):
-        return self.estado.damehn() + 0#self.gn
+        return self.estado.damehn() + self.gn
 
     def calculaDistancia(self, n1):
         return math.hypot(self.estado.dameCoordenadax() - n1.dameCoordenadax(),
                           self.estado.dameCoordenaday() - n1.dameCoordenaday())
 
     # Dado un punto n, calcula el angulo que se forma al intentar llegar a este, dado que hay
-    def calculaAngulo(self,n1):
+    @staticmethod
+    def calculaAngulo(n1,n2):
+        # Ver que acos siempre se ejecute
         # Si el nodo es el inicio  no hay angulo que calcular
-        if self.padre == None:
+        if n1.padre is None:
             return 1
-        a = self.padre.estado
-        b = self.estado
-        c = n1.estado
+        a = n1.padre.estado
+        b = n1.estado
+        c = n2.estado
+        if a == c: # El nodo intenta calcular el angulo de  a --- b --- a
+            return 360
+        ab = math.sqrt(math.pow(a.dameCoordenadax()-b.dameCoordenadax(),2)
+              + math.pow(a.dameCoordenaday() - b.dameCoordenaday(),2))
+        bc = math.sqrt(math.pow(c.dameCoordenadax()-b.dameCoordenadax(),2)
+              + math.pow(c.dameCoordenaday() - b.dameCoordenaday(),2))
+        ca = math.sqrt(math.pow(a.dameCoordenadax()-c.dameCoordenadax(),2)
+              + math.pow(a.dameCoordenaday() - c.dameCoordenaday(),2))
 
-        ab = (b.dameCoordenadax() - a.dameCoordenadax(), b.dameCoordenaday() - a.dameCoordenaday())
-        bc = (c.dameCoordenadax()-b.dameCoordenadax(),c.dameCoordenaday()-b.dameCoordenaday())
-        numerador = (ab[0]*bc[0] + ab[1]*bc[1])
-        denominador = sqrt(pow(ab[0],2) + pow(ab[1],2)) *sqrt(pow(bc[0],2) + pow(bc[1],2))
-        return degrees(acos(numerador / denominador))
+        numerador = math.pow(ab,2) + math.pow(ca,2) - math.pow(bc,2)
+        denominador = 2 * ab * ca
+        if denominador == 0:
+            return 0
+        resultado =math.acos(numerador / denominador)
+        return math.degrees(resultado)
     def getSucesores(self):
         sucesores = deque()
         for x in self.estado.dameAdyacentes():
-            #self.gn + self.calculaDistancia(x)
             nodoSucesor = NodoBusqueda(self,x)
-            nodoSucesor.calculagn(self.gn + self.calculaDistancia(x) * (1 / pow(self.calculaAngulo(self),2)) * self.m)
+            dem = pow(NodoBusqueda.calculaAngulo(self,nodoSucesor),2)
+            if dem != 0:
+                nodoSucesor.gn = self.gn + self.calculaDistancia(x) * (1 / dem) * self.m
+            nodoSucesor.gn = 100000
             sucesores.append(nodoSucesor)
         return sucesores
 
