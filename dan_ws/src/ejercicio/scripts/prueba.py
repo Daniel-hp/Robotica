@@ -2,6 +2,7 @@
 import rospy
 from std_msgs.msg import String
 from Tkinter import *
+import Tkinter as tk
 from random import randint
 from collections import deque
 import math
@@ -80,6 +81,89 @@ class Mapa:  # Matriz de celdas
                 break
         return True if contador%2 == 1 else False
 
+    # Regresa la ecuacion de una recta, si la recta es del estilo
+    # x = 2  o y = 2 indica que es asi por medio de false,
+    # de lo contrario true
+    # Regresa de la forma y = ax + b ==> (a,b)
+    @staticmethod
+    def ecuacionRecta(Nb1,Nb2):
+        x1 = Nb1.estado.dameCoordenadax()
+        y1 = Nb1.estado.dameCoordenaday()
+        x2 = Nb2.estado.dameCoordenadax()
+        y2 = Nb2.estado.dameCoordenaday()
+        # Si la pendiente es 0
+        if x1 == x2 :
+            return (x1, 0, False)
+        if y1 == y2:
+            return (0,y2, False)
+        pendiente = (y2 -y1) / (x2 - x1 )
+        #Ecuacion punto pendiente
+        # y = m(x-x1)+ y1
+        return (m*x, -m*x1 + y1,True)
+
+    #Dados trues puntos devuelve la ecuacion cuadratica que
+    # pasa por los tres
+    @staticmethod
+    #def ecuacionCuadratica(Nb1,Nb2,Nb3):
+    def ecuacionCuadratica(x1,y1,x2,y2,x3,y3):
+        #x1 = Nb1.estado.dameCoordenadax()
+        #y1 = Nb1.estado.dameCoordenaday()
+        #x2 = Nb2.estado.dameCoordenadax()
+        #y2 = Nb2.estado.dameCoordenaday()
+        #x3 = Nb3.estado.dameCoordenadax()
+        #y3 = Nb3.estado.dameCoordenaday()
+
+        # No tiene solucion , se tiene cosas como 9a+3b+c=1,4a+2b+c = 3, 4a+2b+c = 4
+        # Lo cual no es posible, ver lo que procede
+        if x1 == x2 or x2 == x3 or x1 == x3:
+            # False indica no procede como tal
+            return (0,0,0,False)
+        # Se forman las ecuaciones de  ax^2 + bx + c = y
+        a1 = math.pow(x1, 2)
+        a2 = math.pow(x2, 2)
+        a3 = math.pow(x3, 2)
+        #
+        ec1 = (a1, x1, 1, y1)
+        ec2 = (a2, x2, 1, y2)
+        ec3 = (a3, x3, 1, y3)
+        print ec1
+        print ec2
+        print ec3
+        print "1"
+        # Se usa Metodo de Gauss
+        # Se eliminan las c de la 2da y 3era ecuacion
+
+        ec2 = (ec2[0]-ec1[0], ec2[1]-ec1[1],ec2[2]-ec1[2],ec2[3]-ec1[3])
+        ec3 = (ec3[0] - ec1[0], ec3[1] - ec1[1], ec3[2] - ec1[2], ec3[3] - ec1[3])
+        print ec2
+        print ec3
+        print "2"
+
+        if ec2[0] > 0 and ec3[0] > 0 or ec2[0] < 0 and ec3[0] < 0:
+            ec3 = (ec2[0]*ec3[0] - ec2[0]*ec3[0],
+                   ec2[0]*ec3[1]-ec3[0]*ec2[1],
+                   0,
+                   ec2[0]*ec3[3] - ec3[0]*ec2[3] )
+        else:
+            ec3 = (ec2[0] * ec3[0] + ec2[0] * ec3[0],
+                   ec2[0] * ec3[1] + ec3[0] * ec2[1],
+                   0,
+                   ec2[0] * ec3[3] + ec3[0] * ec2[3])
+        print ec3
+        b = ec3[3] / ec3[1]
+        print "3"
+        print b
+        a = (ec2[3]-b*ec2[1])/ec2[0]
+        print "4"
+        print a
+        c = (ec1[3]-a*ec1[0]-b*ec1[1])
+        print "5"
+        print c
+        return (a,b,c, True)
+
+
+
+
     def dibuja(self):
 
         self.nodos.append(Nodo(0, 250, []))
@@ -89,7 +173,7 @@ class Mapa:  # Matriz de celdas
         k.pack()
         k.create_oval(0, 499, 0, 499, fill="red")
         k.create_oval(499, 499, 499, 499, fill="red")
-        genera = 350
+        genera = 120
         while genera > 0:
             entro = False
             x = randint(0,self.diccionario['longx'])
@@ -144,7 +228,7 @@ class Mapa:  # Matriz de celdas
                     y0 = self.nodos[x].coordy
                     x1 = self.nodos[y].coordx
                     y1 = self.nodos[y].coordy
-                    if abs(x0 - x1) <  50 and abs(y0 - y1) < 50:
+                    if abs(x0 - x1) <  150 and abs(y0 - y1) < 150:
                         bool = True
                         for z in lista_lineas:
                             alfa = k.coords(z)
@@ -322,33 +406,42 @@ class NodoBusqueda:
 
 if __name__ == '__main__':
     m1 = Mapa(500,500,[[(0,0),(150,200),(300,110)]])
-    m1.dibuja()
-    alg = AEstrella(m1.nodos[0], m1.nodos[1], m1.nodos)
-    num = 1000
-    while not alg.resuleto and num > 0:
-        alg.expandeNodoSiguiente()
-        num -=1
+   # m1.dibuja()
+    #alg = AEstrella(m1.nodos[0], m1.nodos[1], m1.nodos)
+    #num = 1000
+   # while not alg.resuleto and num > 0:
+   #     alg.expandeNodoSiguiente()
+     #   num -=1
 
-    master = Tk()
-    k = Canvas(master, width=500, height=500)
-    k.pack()
+    #master = Tk()
+    #k = Canvas(master, width=500, height=500)
+    #k.pack()
 
-    for x in range(len(alg.solucion)):
-        k.create_rectangle(alg.solucion[x].estado.dameCoordenadax(),
-                           alg.solucion[x].estado.dameCoordenaday(),
-                           alg.solucion[x].estado.dameCoordenadax(),
-                           alg.solucion[x].estado.dameCoordenaday()
-        )
+    #for x in range(len(alg.solucion)):
+     #   k.create_rectangle(alg.solucion[x].estado.dameCoordenadax(),
+      #                     alg.solucion[x].estado.dameCoordenaday(),
+       #                    alg.solucion[x].estado.dameCoordenadax(),
+       #                    alg.solucion[x].estado.dameCoordenaday()
+       # )
         # Para evitar hacer una linea de la meta al inicio
-        if x != len(alg.solucion)-1:
-            k.create_line(alg.solucion[x].estado.dameCoordenadax(),
-                      alg.solucion[x].estado.dameCoordenaday(),
-                      alg.solucion[(x+1)% len(alg.solucion)].estado.dameCoordenadax(),
-                      alg.solucion[(x+1)%len(alg.solucion)].estado.dameCoordenaday())
+        #if x != len(alg.solucion)-1:
+         #   k.create_line(alg.solucion[x].estado.dameCoordenadax(),
+          #            alg.solucion[x].estado.dameCoordenaday(),
+           #           alg.solucion[(x+1)% len(alg.solucion)].estado.dameCoordenadax(),
+            #          alg.solucion[(x+1)%len(alg.solucion)].estado.dameCoordenaday())
 
 
+    #print alg.solucion[0]
+    #k.create_arc(alg.solucion[0].estado.dameCoordenadax(),
+     #            alg.solucion[0].estado.dameCoordenaday(),
+      #           alg.solucion[-1].estado.dameCoordenadax(),
+       #          alg.solucion[-1].estado.dameCoordenaday(),
+        #         style=tk.ARC)
 
+    #k.create_arc(0, 0, 500, 500)
     #master.after(ROS_RATE, exitros)
-    mainloop()
-
-    # Penalizar si hay un angulo pequenho entre tres pares de aristas
+    #mainloop()
+    #k = Canvas(master, width=500, height=500)
+    #k.pack()
+   # mainloop()
+    print Mapa.ecuacionCuadratica(2,5,7,7,9,9)
