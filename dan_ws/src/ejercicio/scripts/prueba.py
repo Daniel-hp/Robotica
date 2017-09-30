@@ -116,7 +116,8 @@ class Mapa:  # Matriz de celdas
         # No tiene solucion , se tiene cosas como 9a+3b+c=1,4a+2b+c = 3, 4a+2b+c = 4
         # Lo cual no es posible, ver lo que procede
         if x1 == x2 or x2 == x3 or x1 == x3:
-            # False indica no procede como tal
+            # Si entra en este caso lo que se hace es hacer una linea imaginaria debajo de la curva
+            # Si choca con un obstaculo se indica que la curva choca, de lo contrario se dibuja la curva
             return (0,0,0,False)
         # Se forman las ecuaciones de  ax^2 + bx + c = y
         a1 = math.pow(x1, 2)
@@ -126,18 +127,11 @@ class Mapa:  # Matriz de celdas
         ec1 = (a1, x1, 1, y1)
         ec2 = (a2, x2, 1, y2)
         ec3 = (a3, x3, 1, y3)
-        print ec1
-        print ec2
-        print ec3
-        print "1"
         # Se usa Metodo de Gauss
         # Se eliminan las c de la 2da y 3era ecuacion
 
         ec2 = (ec2[0]-ec1[0], ec2[1]-ec1[1],ec2[2]-ec1[2],ec2[3]-ec1[3])
         ec3 = (ec3[0] - ec1[0], ec3[1] - ec1[1], ec3[2] - ec1[2], ec3[3] - ec1[3])
-        print ec2
-        print ec3
-        print "2"
 
         if ec2[0] > 0 and ec3[0] > 0 or ec2[0] < 0 and ec3[0] < 0:
             ec3 = (ec2[0]*ec3[0] - ec2[0]*ec3[0],
@@ -149,19 +143,66 @@ class Mapa:  # Matriz de celdas
                    ec2[0] * ec3[1] + ec3[0] * ec2[1],
                    0,
                    ec2[0] * ec3[3] + ec3[0] * ec2[3])
-        print ec3
         b = ec3[3] / ec3[1]
-        print "3"
-        print b
         a = (ec2[3]-b*ec2[1])/ec2[0]
-        print "4"
-        print a
+
         c = (ec1[3]-a*ec1[0]-b*ec1[1])
-        print "5"
-        print c
         return (a,b,c, True)
 
+    #Dada una ecuacion de linea, una ecuacin de curva y dos intervalos indica si chocan
+    @staticmethod
+    def chocanIntervalos(linea,curva,lx1,ly1,lx2,ly2,cx1,cy1,cx2,cy2):
+        # Se 'igualan ' las ecuaciones a 0
+        #To do normal
+        if linea[2] is True and curva[3] is True :
+            zero = (curva[0],curva[1]-linea[0],curva[2]-linea[1])
+            a = zero[0]
+            b = zero[1]
+            c = zero[2]
+            # x = (-b +- sqrt( b^2 - 4ac))/2a
+            raiz = math.pow(b,2) - 4 * a * c
+            if raiz < 0: # Si la raiz es imaginaria implica no hay interseccion en los numeros reales
+                return False
+            x1 = (-b + math.sqrt(raiz) )/2*a
+            x2 = (-b - math.sqrt(raiz) )/2*a
+            # Se sustituye primero x1
+            y1 = linea[0]*x1 + linea[1]
+            y2 = curva[0] * math.pow(x1,2) + curva[1]*x1 + curva[2]
+            # Se obtiene el punto
+            intersc1 = (x1,y1)
+            y11 = linea[0] * x2 + linea[1]
+            y22 = curva[0] * math.pow(x2, 2) + curva[1] * x2 + curva[2]
+            intersc2 = (x2,y22)
 
+            cd1 = lx1 <= intersc1 <= lx2 and ly1 <= intersec2 <= ly2 # Se verifica (x,y) esta en la linea
+            cd2 = cd1 = lx1 <= intersc1 <= lx2 and ly1 <= intersec2 <= ly2 # Se verifica (x,y) esta en la linea  # Se verifica (x,y) esta en la linea
+            cd3 = cx1 <= intersc1 <= cx2 and cy1 <= intersec1 <= cy2 # Se verifica (x,y) esta en la linea
+            cd4 = cx1 <= intersc2 <= cx2 and cy1 <= intersec2 <= cy2 # Se verifica (x,y) esta en la linea
+
+            # Primer condicion
+            cc1 = cd1 and cd3
+            cc2 = cd2 and cd4
+            return cc1 or cc2
+            # Se verifican los intervalos
+
+    #Se tiene lo siguiente:
+    #   o
+    #  / \
+    # o  o
+    #Para suavizar se crean lineas imaginarias que abarcan el espacio a donde se reduciran, si
+    #no chocan se hace la curva, si chocan se vuelve a calcular, ahora a la mitad de la distancia elegida
+    # x1y1 pto inicial de primer segmento
+    # x2y2 pto final de primer segmento e inicial del segundo
+    # x3y3 pto final de segundo segmento
+    @staticmethod
+    def chocaCurva(x1,y1,x2,y2,x3,y3, obstaculos):
+        # calculamos el punto medio entro x1y1 y x4y4
+        ptomedio = ((x1+x3)/2, (y1+y3)/2)
+        # calculamos el punto medio entre el ptomedio calculado
+        ptomediomedio = ((x2+ptomedio[0])/2, (y2+ptomedio[1])/2)
+
+        if ptomedio[0] - x1 < 2:
+            return True
 
 
     def dibuja(self):
@@ -444,4 +485,4 @@ if __name__ == '__main__':
     #k = Canvas(master, width=500, height=500)
     #k.pack()
    # mainloop()
-    print Mapa.ecuacionCuadratica(2,5,7,7,9,9)
+    #print Mapa.ecuacionCuadratica(2,5,7,7,9,9)
