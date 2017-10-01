@@ -24,7 +24,8 @@ class Mapa:  # Matriz de celdas
         self.nodos= nodos
         self.master = Tk()
         self.m=m
-    #Dados tres puntos dice si se encuentra en el misom segmento
+        self.listaLineas =[]
+        #Dados tres puntos dice si se encuentra en el mismo segmento
     @staticmethod
     def enSegmento(x1,y1,x2,y2,x3,y3):
         if min(x1,x3)<= x2 <= max(x1,x3) and min(y1,y3) <= y2 <= max(y1,y3):
@@ -194,35 +195,46 @@ class Mapa:  # Matriz de celdas
     # x1y1 pto inicial de primer segmento
     # x2y2 pto final de primer segmento e inicial del segundo
     # x3y3 pto final de segundo segmento
-    @staticmethod
-    def chocaCurva(x1,y1,x2,y2,x3,y3, obstaculos):
-        # calculamos el punto medio entro x1y1 y x4y4
+    def chocaCurva(self, x1,y1,x2,y2,x3,y3, obstaculos):
+        # calculamos el punto medio entro x1y1 y x3y3
         ptomedio = ((x1+x3)/2, (y1+y3)/2)
         # calculamos el punto medio entre el ptomedio calculado
         ptomediomedio = ((x2+ptomedio[0])/2, (y2+ptomedio[1])/2)
+        # Se observa el tipo de linea que es:
+        #   o   |   o   |    o
+        #  / \  |  / \  |   / \
+        # o   \ | o  o  |  /  o
+        #     o |       | o
+        ejex1 = x1 - ptomedio[0]
+        ejey1 = y1 - ptomedio[1]
+        ejex2 = x2 - ptomedio[0]
+        ejey2 = y2 - ptomedio[1]
+        #  Y si se hace desde el punto medio de la linea x1y1-x2y2
+        # La linea al punto medio de la linea x2y2-x3y3, asi se soluciona
+        # el calculo
+        ptomedio
+        for alfa in self.listaLineas:
+            if Mapa.interseccion(ejex1,ejey1,ejex2,ejey2,
+                                alfa[0], alfa[1], alfa[2], alfa[3]):
+                return True
+        return False
 
-        if ptomedio[0] - x1 < 2:
-            return True
-
-
-    def dibuja(self):
-
+    def calcula(self):
         self.nodos.append(Nodo(0, 250, []))
-
         self.nodos.append(Nodo(499, 499, []))
         k = Canvas(self.master, width=self.diccionario['longx'], height=self.diccionario['longy'])
         k.pack()
         k.create_oval(0, 499, 0, 499, fill="red")
         k.create_oval(499, 499, 499, 499, fill="red")
-        genera = 120
+        genera = 25
         while genera > 0:
             entro = False
-            x = randint(0,self.diccionario['longx'])
-            y = randint(0,self.diccionario['longx'])
+            x = randint(0, self.diccionario['longx'])
+            y = randint(0, self.diccionario['longx'])
 
             # Verifica no exista el nodo ya en la lista
             for z in range(len(self.nodos)):
-                a = Nodo(x,y,[])
+                a = Nodo(x, y, [])
 
                 if a == self.nodos[z]:
                     entro = True
@@ -243,8 +255,8 @@ class Mapa:  # Matriz de celdas
                     k.create_oval(x, y, x, y, fill="red")
                     genera -= 1
                     self.nodos.append(Nodo(x, y, []))
-        lista_lineas=[]
-               # Para dibujar la linea entre los obstasculos
+        self.listaLineas = []
+        # Para dibujar la linea entre los obstasculos
         for z in range(len(self.obstaculos)):
             for x in range(len(self.obstaculos[z])):
                 for y in range(len(self.obstaculos[z])):
@@ -254,13 +266,13 @@ class Mapa:  # Matriz de celdas
                     y1 = self.obstaculos[z][y][1]
                     if x0 != x1 and y0 != y1:
                         seEncuentra = False
-                        for al in lista_lineas:
-                            arr = [int(k.coords(al)[0]),int(k.coords(al)[1]),int(k.coords(al)[2]),int(k.coords(al)[3])]
-                            if arr == [x1,y1,x0,y0]:
+                        for al in self.listaLineas:
+                            arr = [al[0], al[1],al[2],al[3]]
+                            if arr == [x1, y1, x0, y0]:
                                 seEncuentra = True
                         if not seEncuentra:
-                            alfa = k.create_line(x0, y0, x1, y1, fill="red" )
-                            lista_lineas.append(alfa)
+                            alfa = k.create_line(x0, y0, x1, y1, fill="red")
+                            self.listaLineas.append(k.coords(alfa))
         # Para dibujar la linea entre los puntos verificando estas no choquen y
         for x in range(len(self.nodos)):
             for y in range(len(self.nodos)):
@@ -269,11 +281,11 @@ class Mapa:  # Matriz de celdas
                     y0 = self.nodos[x].coordy
                     x1 = self.nodos[y].coordx
                     y1 = self.nodos[y].coordy
-                    if abs(x0 - x1) <  150 and abs(y0 - y1) < 150:
+                    if abs(x0 - x1) < 150 and abs(y0 - y1) < 150:
                         bool = True
-                        for z in lista_lineas:
-                            alfa = k.coords(z)
-                            if Mapa.interseccion(x0, y0, x1, y1, alfa[0], alfa[1], alfa[2], alfa[3]):
+                        for z in self.listaLineas:
+
+                            if Mapa.interseccion(x0, y0, x1, y1, z[0], z[1], z[2], z[3]):
                                 bool = False
                         if bool:
                             self.nodos[x].agregaAdyacente(self.nodos[y])
@@ -284,6 +296,7 @@ class Mapa:  # Matriz de celdas
                 self.master.quit()
             self.master.after(ROS_RATE, exitros)
         self.master.after(ROS_RATE, exitros)
+
         mainloop()
 
 class Nodo:  # Representa a un punto dentro del mapa
@@ -447,7 +460,8 @@ class NodoBusqueda:
 
 if __name__ == '__main__':
     m1 = Mapa(500,500,[[(0,0),(150,200),(300,110)]])
-   # m1.dibuja()
+    m1.calcula()
+    print m1.listaLineas
     #alg = AEstrella(m1.nodos[0], m1.nodos[1], m1.nodos)
     #num = 1000
    # while not alg.resuleto and num > 0:
