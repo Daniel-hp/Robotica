@@ -82,74 +82,6 @@ class Mapa:  # Matriz de celdas
                 break
         return True if contador%2 == 1 else False
 
-    # Regresa la ecuacion de una recta, si la recta es del estilo
-    # x = 2  o y = 2 indica que es asi por medio de false,
-    # de lo contrario true
-    # Regresa de la forma y = ax + b ==> (a,b)
-    @staticmethod
-    def ecuacionRecta(Nb1,Nb2):
-        x1 = Nb1.estado.dameCoordenadax()
-        y1 = Nb1.estado.dameCoordenaday()
-        x2 = Nb2.estado.dameCoordenadax()
-        y2 = Nb2.estado.dameCoordenaday()
-        # Si la pendiente es 0
-        if x1 == x2 :
-            return (x1, 0, False)
-        if y1 == y2:
-            return (0,y2, False)
-        pendiente = (y2 -y1) / (x2 - x1 )
-        #Ecuacion punto pendiente
-        # y = m(x-x1)+ y1
-        return (m*x, -m*x1 + y1,True)
-
-    #Dados trues puntos devuelve la ecuacion cuadratica que
-    # pasa por los tres
-    @staticmethod
-    #def ecuacionCuadratica(Nb1,Nb2,Nb3):
-    def ecuacionCuadratica(x1,y1,x2,y2,x3,y3):
-        #x1 = Nb1.estado.dameCoordenadax()
-        #y1 = Nb1.estado.dameCoordenaday()
-        #x2 = Nb2.estado.dameCoordenadax()
-        #y2 = Nb2.estado.dameCoordenaday()
-        #x3 = Nb3.estado.dameCoordenadax()
-        #y3 = Nb3.estado.dameCoordenaday()
-
-        # No tiene solucion , se tiene cosas como 9a+3b+c=1,4a+2b+c = 3, 4a+2b+c = 4
-        # Lo cual no es posible, ver lo que procede
-        if x1 == x2 or x2 == x3 or x1 == x3:
-            # Si entra en este caso lo que se hace es hacer una linea imaginaria debajo de la curva
-            # Si choca con un obstaculo se indica que la curva choca, de lo contrario se dibuja la curva
-            return (0,0,0,False)
-        # Se forman las ecuaciones de  ax^2 + bx + c = y
-        a1 = math.pow(x1, 2)
-        a2 = math.pow(x2, 2)
-        a3 = math.pow(x3, 2)
-        #
-        ec1 = (a1, x1, 1, y1)
-        ec2 = (a2, x2, 1, y2)
-        ec3 = (a3, x3, 1, y3)
-        # Se usa Metodo de Gauss
-        # Se eliminan las c de la 2da y 3era ecuacion
-
-        ec2 = (ec2[0]-ec1[0], ec2[1]-ec1[1],ec2[2]-ec1[2],ec2[3]-ec1[3])
-        ec3 = (ec3[0] - ec1[0], ec3[1] - ec1[1], ec3[2] - ec1[2], ec3[3] - ec1[3])
-
-        if ec2[0] > 0 and ec3[0] > 0 or ec2[0] < 0 and ec3[0] < 0:
-            ec3 = (ec2[0]*ec3[0] - ec2[0]*ec3[0],
-                   ec2[0]*ec3[1]-ec3[0]*ec2[1],
-                   0,
-                   ec2[0]*ec3[3] - ec3[0]*ec2[3] )
-        else:
-            ec3 = (ec2[0] * ec3[0] + ec2[0] * ec3[0],
-                   ec2[0] * ec3[1] + ec3[0] * ec2[1],
-                   0,
-                   ec2[0] * ec3[3] + ec3[0] * ec2[3])
-        b = ec3[3] / ec3[1]
-        a = (ec2[3]-b*ec2[1])/ec2[0]
-
-        c = (ec1[3]-a*ec1[0]-b*ec1[1])
-        return (a,b,c, True)
-
     #Dada una ecuacion de linea, una ecuacin de curva y dos intervalos indica si chocan
     @staticmethod
     def chocanIntervalos(linea,curva,lx1,ly1,lx2,ly2,cx1,cy1,cx2,cy2):
@@ -186,38 +118,45 @@ class Mapa:  # Matriz de celdas
             return cc1 or cc2
             # Se verifican los intervalos
 
-    #Se tiene lo siguiente:
-    #   o
-    #  / \
-    # o  o
+
     #Para suavizar se crean lineas imaginarias que abarcan el espacio a donde se reduciran, si
     #no chocan se hace la curva, si chocan se vuelve a calcular, ahora a la mitad de la distancia elegida
     # x1y1 pto inicial de primer segmento
     # x2y2 pto final de primer segmento e inicial del segundo
     # x3y3 pto final de segundo segmento
-    def chocaCurva(self, x1,y1,x2,y2,x3,y3, obstaculos):
+    def chocaCurva(self, x1,y1,x2,y2,x3,y3):
+        # Si la distancia de (x1,y1)-(x2,y2) < 4 o de (x3,y3)-(x2,x2) < 4 se marca que estan muy cerca del extremo
+        # Y se dice chocan
+        distancia1 = math.sqrt(math.pow(x1-x2,2) + math.pow(y1-y2,2))
+        distancia2 = math.sqrt(math.pow(x3-x2,2) + math.pow(y3-y2,2))
+        if distancia1 < 4 or distancia2 < 4:
+            return (True,True)
         # calculamos el punto medio entro x1y1 y x3y3
-        ptomedio = ((x1+x3)/2, (y1+y3)/2)
-        # calculamos el punto medio entre el ptomedio calculado
-        ptomediomedio = ((x2+ptomedio[0])/2, (y2+ptomedio[1])/2)
-        # Se observa el tipo de linea que es:
-        #   o   |   o   |    o
-        #  / \  |  / \  |   / \
-        # o   \ | o  o  |  /  o
-        #     o |       | o
-        ejex1 = x1 - ptomedio[0]
-        ejey1 = y1 - ptomedio[1]
-        ejex2 = x2 - ptomedio[0]
-        ejey2 = y2 - ptomedio[1]
-        #  Y si se hace desde el punto medio de la linea x1y1-x2y2
-        # La linea al punto medio de la linea x2y2-x3y3, asi se soluciona
-        # el calculo
-        ptomedio
+        ptomediop1p2 = ((x1 + x2) / 2, (y1 + y2) / 2)
+        ptomediop2p3 = ((x3 + x2) / 2, (y3 + y2) / 2)
+
+        # Se calculan los tres puntos arriba de cada punto medio, para trazar las lineas y verificar si chocan con algun obstaculo
+        difx1x2 = 0 if x2-x1 == 0 else -1 if x2-x1 < 0 else 1
+        dify1y2 = 0 if y2-y1 == 0 else -1 if y2-y1 < 0 else 1
+        difx3x2 = 0 if x2-x3 == 0 else -1 if x2-x3 < 0 else 1
+        dify3y2 = 0 if y2-y3 == 0 else -1 if y2-y3 < 0 else 1
+
+
+        ptosx1y1x2y2 = [ptomediop1p2] + [(ptomediop1p2[0] + difx1x2, ptomediop1p2[1] + dify1y2),
+                                         (ptomediop1p2[0] + difx1x2 * 2, ptomediop1p2[1] + dify1y2 * 2),
+                                        (ptomediop1p2[0] + difx1x2 * 3, ptomediop1p2[1] + dify1y2 * 3)]
+        ptosx3y3x2y2= [ptomediop2p3] + [(ptomediop2p3[0] + difx3x2, ptomediop2p3[1] + dify3y2),
+                                        (ptomediop2p3[0] + difx3x2 * 2, ptomediop2p3[1] + dify3y2 * 2),
+                                        (ptomediop2p3[0] + difx3x2 * 3, ptomediop2p3[1] + dify3y2 * 3)]
+        print ptosx1y1x2y2
+        print ptosx3y3x2y2
         for alfa in self.listaLineas:
-            if Mapa.interseccion(ejex1,ejey1,ejex2,ejey2,
-                                alfa[0], alfa[1], alfa[2], alfa[3]):
-                return True
-        return False
+            for x in ptosx1y1x2y2:
+                for y in ptosx3y3x2y2:
+                    if Mapa.interseccion(x[0],x[1],y[0],y[1],
+                                        alfa[0], alfa[1], alfa[2], alfa[3]):
+                        return (False,True)
+        return (True,False)
 
     def calcula(self):
         self.nodos.append(Nodo(0, 250, []))
@@ -462,6 +401,7 @@ if __name__ == '__main__':
     m1 = Mapa(500,500,[[(0,0),(150,200),(300,110)]])
     m1.calcula()
     print m1.listaLineas
+    print m1.chocaCurva(120,120,300,300,100,120)
     #alg = AEstrella(m1.nodos[0], m1.nodos[1], m1.nodos)
     #num = 1000
    # while not alg.resuleto and num > 0:
