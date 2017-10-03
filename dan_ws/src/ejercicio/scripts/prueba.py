@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+from __future__ import division
 import rospy
 from std_msgs.msg import String
 from Tkinter import *
@@ -124,39 +125,59 @@ class Mapa:  # Matriz de celdas
     # x1y1 pto inicial de primer segmento
     # x2y2 pto final de primer segmento e inicial del segundo
     # x3y3 pto final de segundo segmento
-    def chocaCurva(self, x1,y1,x2,y2,x3,y3):
-        # Si la distancia de (x1,y1)-(x2,y2) < 4 o de (x3,y3)-(x2,x2) < 4 se marca que estan muy cerca del extremo
-        # Y se dice chocan
-        distancia1 = math.sqrt(math.pow(x1-x2,2) + math.pow(y1-y2,2))
-        distancia2 = math.sqrt(math.pow(x3-x2,2) + math.pow(y3-y2,2))
-        if distancia1 < 4 or distancia2 < 4:
-            return (True,True)
+    def segmentoLibre(self, x1,y1,x2,y2,x3,y3):
+        # Si x1 == x3 y y1 == y3 se indica que no hay forma de suavizar y se deja
+        #la linea recta
+        if x1 == x3 and y1 == y3:
+            return  (x1, y1, x2, y2, x3, y3)
         # calculamos el punto medio entro x1y1 y x3y3
         ptomediop1p2 = ((x1 + x2) / 2, (y1 + y2) / 2)
         ptomediop2p3 = ((x3 + x2) / 2, (y3 + y2) / 2)
-
         # Se calculan los tres puntos arriba de cada punto medio, para trazar las lineas y verificar si chocan con algun obstaculo
         difx1x2 = 0 if x2-x1 == 0 else -1 if x2-x1 < 0 else 1
         dify1y2 = 0 if y2-y1 == 0 else -1 if y2-y1 < 0 else 1
         difx3x2 = 0 if x2-x3 == 0 else -1 if x2-x3 < 0 else 1
         dify3y2 = 0 if y2-y3 == 0 else -1 if y2-y3 < 0 else 1
-
-
         ptosx1y1x2y2 = [ptomediop1p2] + [(ptomediop1p2[0] + difx1x2, ptomediop1p2[1] + dify1y2),
                                          (ptomediop1p2[0] + difx1x2 * 2, ptomediop1p2[1] + dify1y2 * 2),
                                         (ptomediop1p2[0] + difx1x2 * 3, ptomediop1p2[1] + dify1y2 * 3)]
         ptosx3y3x2y2= [ptomediop2p3] + [(ptomediop2p3[0] + difx3x2, ptomediop2p3[1] + dify3y2),
                                         (ptomediop2p3[0] + difx3x2 * 2, ptomediop2p3[1] + dify3y2 * 2),
                                         (ptomediop2p3[0] + difx3x2 * 3, ptomediop2p3[1] + dify3y2 * 3)]
-        print ptosx1y1x2y2
-        print ptosx3y3x2y2
+        # Hacer que si los pts medios coinciden se regresa esa coordenada
         for alfa in self.listaLineas:
             for x in ptosx1y1x2y2:
                 for y in ptosx3y3x2y2:
                     if Mapa.interseccion(x[0],x[1],y[0],y[1],
                                         alfa[0], alfa[1], alfa[2], alfa[3]):
-                        return (False,True)
-        return (True,False)
+                        return self.segmentoLibre(ptomediop1p2[0],ptomediop1p2[1],x2,y2,ptomediop2p3[0],ptomediop2p3[1])
+        return (x1, y1, x2, y2, x3, y3)
+
+    # Dado un conjunto de puntos suaviza las lineas rectas entre estos
+    def suaviza(self, ptos):
+        # Se agarra el punto x[i], x[i+1], x[i+2]
+        # Y se observa si se puede suavizar la linea x[i]x[i+1]  x[i+1]x[i+2]
+        long = len(ptos)
+        x = 0
+        print "La long es de : "  + str(long)
+        #Se suaviza la linea
+        nvosptos = []
+        while x+2 < long :
+            pto1 = ptos[x]
+            pto2 = ptos[x+1]
+            pto3 = ptos[x+2]
+            nvosptos = nvosptos + [self.segmentoLibre(pto1.estado.dameCoordenadax(),
+                                                     pto1.estado.dameCoordenaday(),
+                                                     pto2.estado.dameCoordenadax(),
+                                                     pto2.estado.dameCoordenaday(),
+                                                     pto3.estado.dameCoordenadax(),
+                                                     pto3.estado.dameCoordenaday(),)]
+            x = x + 2
+        return nvosptos
+
+
+
+
 
     def calcula(self):
         self.nodos.append(Nodo(0, 250, []))
@@ -165,7 +186,7 @@ class Mapa:  # Matriz de celdas
         k.pack()
         k.create_oval(0, 499, 0, 499, fill="red")
         k.create_oval(499, 499, 499, 499, fill="red")
-        genera = 25
+        genera = 300
         while genera > 0:
             entro = False
             x = randint(0, self.diccionario['longx'])
@@ -220,7 +241,7 @@ class Mapa:  # Matriz de celdas
                     y0 = self.nodos[x].coordy
                     x1 = self.nodos[y].coordx
                     y1 = self.nodos[y].coordy
-                    if abs(x0 - x1) < 150 and abs(y0 - y1) < 150:
+                    if abs(x0 - x1) <40 and abs(y0 - y1) < 40:
                         bool = True
                         for z in self.listaLineas:
 
@@ -398,44 +419,45 @@ class NodoBusqueda:
 
 
 if __name__ == '__main__':
-    m1 = Mapa(500,500,[[(0,0),(150,200),(300,110)]])
+    m1 = Mapa(500,500,[[(0,0),(150,200),(300,110)],[(50,50),(25,25),(25,50),(50,25)]])
     m1.calcula()
-    print m1.listaLineas
-    print m1.chocaCurva(120,120,300,300,100,120)
-    #alg = AEstrella(m1.nodos[0], m1.nodos[1], m1.nodos)
-    #num = 1000
-   # while not alg.resuleto and num > 0:
-   #     alg.expandeNodoSiguiente()
-     #   num -=1
+    alg = AEstrella(m1.nodos[0], m1.nodos[1], m1.nodos)
+    num = 1000
+    while not alg.resuleto and num > 0:
+        alg.expandeNodoSiguiente()
+        num -=1
 
-    #master = Tk()
-    #k = Canvas(master, width=500, height=500)
-    #k.pack()
-
-    #for x in range(len(alg.solucion)):
-     #   k.create_rectangle(alg.solucion[x].estado.dameCoordenadax(),
-      #                     alg.solucion[x].estado.dameCoordenaday(),
-       #                    alg.solucion[x].estado.dameCoordenadax(),
-       #                    alg.solucion[x].estado.dameCoordenaday()
-       # )
+    master = Tk()
+    k = Canvas(master, width=500, height=500)
+    k.pack()
+    # Se dibujan las lineas del recorrido obtenido por A*
+    for x in range(len(alg.solucion)):
+        k.create_rectangle(alg.solucion[x].estado.dameCoordenadax(),
+                           alg.solucion[x].estado.dameCoordenaday(),
+                           alg.solucion[x].estado.dameCoordenadax(),
+                           alg.solucion[x].estado.dameCoordenaday()
+        )
         # Para evitar hacer una linea de la meta al inicio
-        #if x != len(alg.solucion)-1:
-         #   k.create_line(alg.solucion[x].estado.dameCoordenadax(),
-          #            alg.solucion[x].estado.dameCoordenaday(),
-           #           alg.solucion[(x+1)% len(alg.solucion)].estado.dameCoordenadax(),
-            #          alg.solucion[(x+1)%len(alg.solucion)].estado.dameCoordenaday())
+        if x != len(alg.solucion)-1:
+            k.create_line(alg.solucion[x].estado.dameCoordenadax(),
+                      alg.solucion[x].estado.dameCoordenaday(),
+                      alg.solucion[(x+1)% len(alg.solucion)].estado.dameCoordenadax(),
+                      alg.solucion[(x+1)%len(alg.solucion)].estado.dameCoordenaday())
 
-
+    # Se suavizan las lineas obtenidasd anteriormente
     #print alg.solucion[0]
     #k.create_arc(alg.solucion[0].estado.dameCoordenadax(),
      #            alg.solucion[0].estado.dameCoordenaday(),
       #           alg.solucion[-1].estado.dameCoordenadax(),
        #          alg.solucion[-1].estado.dameCoordenaday(),
         #         style=tk.ARC)
-
+    k.create_rectangle(50,50,.5,.5)
     #k.create_arc(0, 0, 500, 500)
     #master.after(ROS_RATE, exitros)
-    #mainloop()
+    mainloop()
+    #print m1.segmentoLibre(0,0,50,50,100,100)
+
+    print  m1.suaviza(alg.solucion)
     #k = Canvas(master, width=500, height=500)
     #k.pack()
    # mainloop()
