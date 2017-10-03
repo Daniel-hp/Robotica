@@ -133,6 +133,7 @@ class Mapa:  # Matriz de celdas
         # calculamos el punto medio entro x1y1 y x3y3
         ptomediop1p2 = ((x1 + x2) / 2, (y1 + y2) / 2)
         ptomediop2p3 = ((x3 + x2) / 2, (y3 + y2) / 2)
+        ptomediop1p3 = ((x3 + x1) / 2, (y3 + y1) / 2)
         # Se calculan los tres puntos arriba de cada punto medio, para trazar las lineas y verificar si chocan con algun obstaculo
         difx1x2 = 0 if x2-x1 == 0 else -1 if x2-x1 < 0 else 1
         dify1y2 = 0 if y2-y1 == 0 else -1 if y2-y1 < 0 else 1
@@ -151,32 +152,73 @@ class Mapa:  # Matriz de celdas
                     if Mapa.interseccion(x[0],x[1],y[0],y[1],
                                         alfa[0], alfa[1], alfa[2], alfa[3]):
                         return self.segmentoLibre(ptomediop1p2[0],ptomediop1p2[1],x2,y2,ptomediop2p3[0],ptomediop2p3[1])
-        return (x1, y1, x2, y2, x3, y3)
+        return (ptomediop1p2[0], ptomediop1p2[1], ptomediop1p3[0], ptomediop1p3[1], ptomediop2p3[0], ptomediop2p3[1])
 
     # Dado un conjunto de puntos suaviza las lineas rectas entre estos
-    def suaviza(self, ptos):
+    def suaviza(self, ptos, k):
         # Se agarra el punto x[i], x[i+1], x[i+2]
         # Y se observa si se puede suavizar la linea x[i]x[i+1]  x[i+1]x[i+2]
         long = len(ptos)
         x = 0
-        print "La long es de : "  + str(long)
         #Se suaviza la linea
         nvosptos = []
         while x+2 < long :
-            pto1 = ptos[x]
-            pto2 = ptos[x+1]
-            pto3 = ptos[x+2]
-            nvosptos = nvosptos + [self.segmentoLibre(pto1.estado.dameCoordenadax(),
-                                                     pto1.estado.dameCoordenaday(),
-                                                     pto2.estado.dameCoordenadax(),
-                                                     pto2.estado.dameCoordenaday(),
-                                                     pto3.estado.dameCoordenadax(),
-                                                     pto3.estado.dameCoordenaday(),)]
-            x = x + 2
-        return nvosptos
+            print "...."
+            pto1x = ptos[x].estado.dameCoordenadax()
+            pto1y = ptos[x].estado.dameCoordenaday()
+            pto2x = ptos[x + 1].estado.dameCoordenadax()
+            pto2y = ptos[x + 1].estado.dameCoordenaday()
+            pto3x = ptos[x + 2].estado.dameCoordenadax()
+            pto3y = ptos[x + 2].estado.dameCoordenaday()
 
+            segmentos = self.segmentoLibre(pto1x,pto1y,pto2x,pto2y,pto3x,pto3y)
+            #print segmentos
+            k.create_line(pto1x,pto1y,
+                          segmentos[0], segmentos[1])
+            k.create_line(segmentos[0], segmentos[1],
+                          segmentos[2], segmentos[3])
+            k.create_line(segmentos[2], segmentos[3],
+                          segmentos[4], segmentos[5])
+            k.create_line(segmentos[4], segmentos[5],
+                          pto3x,pto3y)
+            print segmentos
+            print "["+ str(pto1x) + "," \
+                    +str(pto1y)+ ","  + str(pto2x) + ","  + \
+                  str(pto2y) + ","  +  str(pto3x) + ","  + str(pto3y) + "]"
 
+            x += 2
+        # Los sobrantes se dejan con la linea recta
+        if x + 2 == long:
+            pto1x = ptos[x].estado.dameCoordenadax()
+            pto1y = ptos[x].estado.dameCoordenaday()
+            pto2x = ptos[x + 1].estado.dameCoordenadax()
+            pto2y = ptos[x + 1].estado.dameCoordenaday()
+            k.create_line(pto1x,pto1y,pto2x,pto2y)
+        return (nvosptos, long - x)
 
+    def calculaCirculo(self,x1,y1,x2,y2,x3,y3):
+
+        # Ver signos
+        # Ver por que se tiene que y = mx - b
+        if x1 == x2 or x2 == x1 :
+            return False
+        ptomd1 = ((x1+x2)/2, (y1+y2)/2)
+        ptomd2 = ((x2+x3)/2, (y2+y3)/2)
+        pend1 = -(y2-y1)/(x2-x1)
+        pend2 = -(y3-y2)/(x3-x2)
+
+        # y = mx + b  => (y,mx,b)
+        ec1 = (1, pend1, -pend1 * ptomd1[0] + ptomd1[1])
+        ec2 = (1, pend2, -pend2 * ptomd2[0] + ptomd2[1])
+        print ec1
+        print ec2
+        # Se igualan las y, se resuelve por x
+        x = (-pend2 * ptomd2[0] + ptomd2[1] - (-pend1 *
+            ptomd1[0] + ptomd1[1]))/pend1
+        x = (-ec1[2]+ ec2[2])/(ec2[1]-ec1[1])
+        y = x * ec1[1] -  ec1[2]
+
+        return (x,y)
 
 
     def calcula(self):
@@ -186,7 +228,7 @@ class Mapa:  # Matriz de celdas
         k.pack()
         k.create_oval(0, 499, 0, 499, fill="red")
         k.create_oval(499, 499, 499, 499, fill="red")
-        genera = 300
+        genera = 350
         while genera > 0:
             entro = False
             x = randint(0, self.diccionario['longx'])
@@ -241,7 +283,7 @@ class Mapa:  # Matriz de celdas
                     y0 = self.nodos[x].coordy
                     x1 = self.nodos[y].coordx
                     y1 = self.nodos[y].coordy
-                    if abs(x0 - x1) <40 and abs(y0 - y1) < 40:
+                    if abs(x0 - x1) <65 and abs(y0 - y1) < 65:
                         bool = True
                         for z in self.listaLineas:
 
@@ -307,6 +349,7 @@ class Nodo:  # Representa a un punto dentro del mapa
         return hash(self.__key())
 
 class AEstrella:
+    # Devolver False en caso de que no se haya encontrado solucion
     def __init__(self,inicio,meta, nodos = []):
         self.inicio = inicio
         self.iinicioNB = NodoBusqueda(None,inicio)
@@ -420,29 +463,29 @@ class NodoBusqueda:
 
 if __name__ == '__main__':
     m1 = Mapa(500,500,[[(0,0),(150,200),(300,110)],[(50,50),(25,25),(25,50),(50,25)]])
-    m1.calcula()
-    alg = AEstrella(m1.nodos[0], m1.nodos[1], m1.nodos)
-    num = 1000
-    while not alg.resuleto and num > 0:
-        alg.expandeNodoSiguiente()
-        num -=1
-
-    master = Tk()
-    k = Canvas(master, width=500, height=500)
-    k.pack()
+    #m1.calcula()
+    #alg = AEstrella(m1.nodos[0], m1.nodos[1], m1.nodos)
+    #num = 500
+    #while not alg.resuleto and num > 0:
+    #    alg.expandeNodoSiguiente()
+      #  num -=1
+     #   print num
+    #master = Tk()
+    #k = Canvas(master, width=500, height=500)
+    #k.pack()
     # Se dibujan las lineas del recorrido obtenido por A*
-    for x in range(len(alg.solucion)):
-        k.create_rectangle(alg.solucion[x].estado.dameCoordenadax(),
-                           alg.solucion[x].estado.dameCoordenaday(),
-                           alg.solucion[x].estado.dameCoordenadax(),
-                           alg.solucion[x].estado.dameCoordenaday()
-        )
+    #for x in range(len(alg.solucion)):
+     #   k.create_rectangle(alg.solucion[x].estado.dameCoordenadax(),
+      #                     alg.solucion[x].estado.dameCoordenaday(),
+       #                    alg.solucion[x].estado.dameCoordenadax(),
+        #                   alg.solucion[x].estado.dameCoordenaday()
+        #)
         # Para evitar hacer una linea de la meta al inicio
-        if x != len(alg.solucion)-1:
-            k.create_line(alg.solucion[x].estado.dameCoordenadax(),
-                      alg.solucion[x].estado.dameCoordenaday(),
-                      alg.solucion[(x+1)% len(alg.solucion)].estado.dameCoordenadax(),
-                      alg.solucion[(x+1)%len(alg.solucion)].estado.dameCoordenaday())
+       # if x != len(alg.solucion)-1:
+        #    k.create_line(alg.solucion[x].estado.dameCoordenadax(),
+         #             alg.solucion[x].estado.dameCoordenaday(),
+          #            alg.solucion[(x+1)% len(alg.solucion)].estado.dameCoordenadax(),
+           #           alg.solucion[(x+1)%len(alg.solucion)].estado.dameCoordenaday())
 
     # Se suavizan las lineas obtenidasd anteriormente
     #print alg.solucion[0]
@@ -451,14 +494,19 @@ if __name__ == '__main__':
       #           alg.solucion[-1].estado.dameCoordenadax(),
        #          alg.solucion[-1].estado.dameCoordenaday(),
         #         style=tk.ARC)
-    k.create_rectangle(50,50,.5,.5)
+
     #k.create_arc(0, 0, 500, 500)
     #master.after(ROS_RATE, exitros)
-    mainloop()
+    #mainloop()
     #print m1.segmentoLibre(0,0,50,50,100,100)
+    #master = Tk()
+    #k = Canvas(master, width=500, height=500)
+    #k.pack()
 
-    print  m1.suaviza(alg.solucion)
+    #m1.suaviza(alg.solucion, k)
+    #mainloop()
     #k = Canvas(master, width=500, height=500)
     #k.pack()
    # mainloop()
     #print Mapa.ecuacionCuadratica(2,5,7,7,9,9)
+    print m1.calculaCirculo(10,30,50,20,20,10)
