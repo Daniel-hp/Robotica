@@ -538,9 +538,19 @@ if __name__ == '__main__':
 
     m1.suaviza(alg.solucion, k)
     '''
-    k.create_line(251,444,499,499, fill ="red")
-    k.create_line(0,250,251,444, fill="red")
-    m1.calculaCirculo(0,250,251,444,499,499, k)
+    ## Calcular los 4 segmentos para ver la perpendicular
+    k.create_rectangle(250,250,250,250,fill="red")
+    k.create_rectangle(250,300,250,300, fill="blue")
+    k.create_rectangle(300,250,300,250, fill="chocolate")
+    k.create_rectangle(200,250,200,250, fill ="gold")
+    k.create_rectangle(250,200,250,200,fill="cyan")
+   # k.create_line(250, 300, 300, 250)
+   # k.create_line(300,250, 200, 250)
+   # k.create_line(250,200, 250, 200)
+    #k.create_line(250,)
+    #k.create_line(251,444,499,499, fill ="red")
+    #k.create_line(0,250,251,444, fill="red")
+    m1.calculaCirculo(250,300,300,250,200,250, k)
     mainloop()
     #master = Tk()
     #k = Canvas(master, width=500, height=500)
