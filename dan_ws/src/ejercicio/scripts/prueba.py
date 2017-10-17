@@ -220,36 +220,43 @@ class Mapa:  # Matriz de celdas
             return False
        ptomd1 = ((x1+x2)/2, (y1+y2)/2)
        ptomd2 = ((x2+x3)/2, (y2+y3)/2)
-       k.create_rectangle(ptomd1[0], ptomd1[1], ptomd1[0]+1, ptomd1[1]+1, fill="red")
-       k.create_rectangle(ptomd2[0], ptomd2[1], ptomd2[0]+1, ptomd2[1]+1, fill="red")
+       k.create_rectangle(ptomd1[0], ptomd1[1], ptomd1[0], ptomd1[1], fill="red")
+       k.create_rectangle(ptomd2[0], ptomd2[1], ptomd2[0], ptomd2[1], fill="red")
        pend1 = -(x2-x1)/(y2-y1)
-       pend2 =-(x2-x3)/(y2-y1)
+       pend2 =-(x2-x3)/(y2-y3)
 
-       print pend1
-       print pend2
+       #print pend1
+       #print pend2
         # y = mx + b  => (y,mx,b)
        ec1 = (1, pend1, -pend1 * ptomd1[0] + ptomd1[1])
        ec2 = (1, pend2, -pend2 * ptomd2[0] + ptomd2[1])
-
+       '''
        k.create_line(0,ec1[2],500,500*ec1[1] + ec1[2],fill="cyan3")
        k.create_line(0,ec2[2],500,500*ec2[1] + ec2[2],fill="chocolate")
+       '''
        #print ec1
        #print ec2
         # Se igualan las y, se resuelve por x
        x = (ec2[2] - ec1[2]) / -(ec2[1] - ec1[1])
        y = x * ec1[1] + ec1[2]
+       #print "Se intersectan en : " + str(x) + str(y)
        # (x,y) representa el centro del circulo
-       r = math.sqrt(math.pow(x-ptomd1[0],2) + math.pow(y-ptomd1[1],2))
-       alfa = math.degrees(math.atan2((ptomd2[1] - y) ,(ptomd2[0] - x)))
-       beta = math.degrees(math.atan2((ptomd1[1] - y) , (ptomd1[0] - x)))
+       r = math.sqrt(math.pow(x-ptomd1[0], 2) + math.pow(y-ptomd1[1], 2))
+       alfa = math.degrees(math.atan2((ptomd2[1] - y), (ptomd2[0] - x)))
+       beta = math.degrees(math.atan2((ptomd1[1] - y), (ptomd1[0] - x)))
        primpto = (x-r,y+r)
        segpto = (x-r,y-r)
        tercerpto = (x+r,y+r)
        crtopto = (x+r,y-r)
+       #print "R es : " + str(r)
+       '''
        k.create_line(x-r,y+r,x-r,y-r,fill="blue")
        k.create_line(x-r,y+r,x+r,y+r, fill="blue")
        k.create_line(x+r,y-r,x-r,y-r, fill="blue")
-       k.create_line(x+r,y-r,x+r,y+r)
+       k.create_line(x+r,y-r,x+r,y+r, fill="blue")
+       '''
+       if beta < 0 :
+           beta = 360 + beta
        return (x-r,y+r,x+r,y-r,alfa,beta)
 
     def calcula(self):
@@ -259,7 +266,7 @@ class Mapa:  # Matriz de celdas
         k.pack()
         k.create_oval(0, 499, 0, 499, fill="red")
         k.create_oval(499, 499, 499, 499, fill="red")
-        genera = 25
+        genera = 450
         while genera > 0:
             entro = False
             x = randint(0, self.diccionario['longx'])
@@ -314,7 +321,8 @@ class Mapa:  # Matriz de celdas
                     y0 = self.nodos[x].coordy
                     x1 = self.nodos[y].coordx
                     y1 = self.nodos[y].coordy
-                    if abs(x0 - x1) <260 and abs(y0 - y1) < 260:
+                    # Distancias aceptables
+                    if abs(x0 - x1) < 100 and abs(y0 - y1) < 100:
                         bool = True
                         for z in self.listaLineas:
 
@@ -496,19 +504,21 @@ class NodoBusqueda:
 if __name__ == '__main__':
     m1 = Mapa(500,500,[[(0,0),(150,200),(300,110)],[(50,50),(25,25),(25,50),(50,25)]])
     m1.calcula()
+    print m1.nodos[0]
+    print m1.nodos[1]
     alg = AEstrella(m1.nodos[0], m1.nodos[1], m1.nodos)
     num = 500
     while not alg.resuleto and num > 0:
         alg.expandeNodoSiguiente()
         num -=1
-        print num
     #master = Tk()
    # k = Canvas(master, width=500, height=500)
    # k.pack()
     #Se dibujan las lineas del recorrido obtenido por A*
 
     # Se suavizan las lineas obtenidasd anteriormente
-    #print alg.solucion[0]
+    print alg.solucion[0]
+    print alg.solucion[-1]
     #k.create_arc(alg.solucion[0].estado.dameCoordenadax(),
      #            alg.solucion[0].estado.dameCoordenaday(),
       #           alg.solucion[-1].estado.dameCoordenadax(),
@@ -522,13 +532,17 @@ if __name__ == '__main__':
     master = Tk()
     k = Canvas(master, width=1000, height=1000)
     k.pack()
-    '''
+    #for x in alg.solucion:
+     #   k.create_rectangle(x.estado.dameCoordenadax(), x.estado.dameCoordenaday(), x.estado.dameCoordenadax()+15,
+      #                     x.estado.dameCoordenaday()+15, fill="red")
+      #  if x != len(alg.solucion)-1:
+      #      k.create_line(x.estado.dameCoordenadax(),)
     for x in range(len(alg.solucion)):
-    #    k.create_rectangle(alg.solucion[x].estado.dameCoordenadax(),
-     #                      alg.solucion[x].estado.dameCoordenaday(),
-      #                     alg.solucion[x].estado.dameCoordenadax(),
-       #                    alg.solucion[x].estado.dameCoordenaday(), fill="red"
-        #)
+        k.create_rectangle(alg.solucion[x].estado.dameCoordenadax(),
+                           alg.solucion[x].estado.dameCoordenaday(),
+                           alg.solucion[x].estado.dameCoordenadax()+10,
+                           alg.solucion[x].estado.dameCoordenaday()+10, fill="red"
+        )
     # Para evitar hacer una linea de la meta al inicio
         if x != len(alg.solucion)-1:
             k.create_line(alg.solucion[x].estado.dameCoordenadax(),
@@ -537,33 +551,52 @@ if __name__ == '__main__':
                       alg.solucion[(x+1)%len(alg.solucion)].estado.dameCoordenaday(),fill="black")
 
     m1.suaviza(alg.solucion, k)
+
     '''
-    ## Calcular los 4 segmentos para ver la perpendicular
-    k.create_rectangle(250,250,250,250,fill="red")
-    k.create_rectangle(250,300,250,300, fill="blue")
-    k.create_rectangle(300,250,300,250, fill="chocolate")
-    k.create_rectangle(200,250,200,250, fill ="gold")
-    k.create_rectangle(250,200,250,200,fill="cyan")
-   # k.create_line(250, 300, 300, 250)
-   # k.create_line(300,250, 200, 250)
-   # k.create_line(250,200, 250, 200)
-    #k.create_line(250,)
-    #k.create_line(251,444,499,499, fill ="red")
-    #k.create_line(0,250,251,444, fill="red")
-    m1.calculaCirculo(250,300,300,250,200,250, k)
+         4
+         |
+    3____|____2
+         |
+         |
+         1
+    '''
+    # Calcular los 4 segmentos para ver la perpendicular
+    # k.create_rectangle(250, 250, 250, 250, fill="red")  # 0
+    #k.create_rectangle(250, 300, 250, 300, fill="purple")  # 1
+    #k.create_rectangle(300, 250, 300, 250, fill="chocolate")  # 2
+    #k.create_rectangle(200, 250, 200, 250, fill ="gold")  # 3
+    #k.create_rectangle(250, 200, 250, 200, fill="cyan")  # 4
+    # k.create_line(250, 300, 300, 250)
+    # k.create_line(300,250, 200, 250)
+    # k.create_line(250,200, 250, 200)
+    # k.create_line(250,)
+    # k.create_line(251,444,499,499, fill ="red")
+    # k.create_line(0,250,251,444, fill="red")
+    # (1,3,4)
+    #angulos = m1.calculaCirculo(250, 200, 200, 250, 250, 300, k) # Esta mal
+    #print "Angulos (1,3,4) = " + str(angulos)
+    # (3,1,2)
+    #angulos = m1.calculaCirculo(200, 250, 250, 300, 300, 250, k) # Esta bien
+    #print "Angulos (3,1,2) = " + str(angulos)
+    # (1,2,4)
+    #angulos = m1.calculaCirculo(250, 300, 300, 250, 250, 200, k) # Esta bien
+    # (3,4,2)
+    # angulos = m1.calculaCirculo(200, 250, 250, 200, 300, 250, k) # Esta bien
+    #k.create_arc(angulos[0], angulos[1], angulos[2], angulos[3],
+    #             start=-angulos[5], extent=angulos[5]-angulos[4], style=tk.ARC, fill="green")
     mainloop()
-    #master = Tk()
-    #k = Canvas(master, width=500, height=500)
-    #k.pack()
-    #k.create_rectangle(0,15,0,15)
-    #k.create_rectangle(100,25,100,25)
-    #k.create_rectangle(50,50,50,50)
-    #mainloop()
-    #master = Tk()
-    #k = Canvas(master, width=500, height=500)
-    #k.pack()
-    #angulos =  Mapa.calculaCirculo(0,15,100,25,50,50)
-    #print angulos
-    #k.create_arc(0,15,50,50,start = angulos[0], extent = angulos[1], style=tk.ARC)
-    #mainloop()
-    #print Mapa.ecuacionCuadratica(2,5,7    ,7,9,9)
+    # master = Tk()
+    # k = Canvas(master, width=500, height=500)
+    # k.pack()
+    # k.create_rectangle(0,15,0,15)
+    # k.create_rectangle(100,25,100,25)
+    # k.create_rectangle(50,50,50,50)
+    # mainloop()
+    # master = Tk()
+    # k = Canvas(master, width=500, height=500)
+    # k.pack()
+    # angulos =  Mapa.calculaCirculo(0,15,100,25,50,50)
+    # print angulos
+    # k.create_arc(0,15,50,50,start = angulos[0], extent = angulos[1], style=tk.ARC)
+    # mainloop()
+    # print Mapa.ecuacionCuadratica(2,5,7    ,7,9,9)
