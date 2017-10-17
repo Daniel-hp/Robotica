@@ -1,2 +1,0 @@
-beginner_tutorials:ejercicio
--DCATKIN_DEVEL_PREFIX=/home/dan/dan_ws/devel -DCMAKE_INSTALL_PREFIX=/home/dan/dan_ws/install -G Unix Makefiles

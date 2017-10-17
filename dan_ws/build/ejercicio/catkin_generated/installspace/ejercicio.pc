@@ -1,8 +1,0 @@
-prefix=/home/dan/dan_ws/install
-
-Name: ejercicio
-Description: Description of ejercicio
-Version: 0.0.0
-Cflags: 
-Libs: -L/home/dan/dan_ws/install/lib 
-Requires: 
