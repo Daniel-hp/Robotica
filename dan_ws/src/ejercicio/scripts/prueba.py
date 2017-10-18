@@ -178,64 +178,56 @@ class Mapa:  # Matriz de celdas
             pto2x = ptos[x + 1].estado.dameCoordenadax()
             pto2y = ptos[x + 1].estado.dameCoordenaday()
             k.create_line(pto1x, pto1y, (pto1x + pto2x)/2, (pto1y +pto2y)/2)
-            while x+2 < long :
+            while x+2 < long:
                 pto1x = ptos[x].estado.dameCoordenadax()
                 pto1y = ptos[x].estado.dameCoordenaday()
                 pto2x = ptos[x + 1].estado.dameCoordenadax()
                 pto2y = ptos[x + 1].estado.dameCoordenaday()
                 pto3x = ptos[x + 2].estado.dameCoordenadax()
                 pto3y = ptos[x + 2].estado.dameCoordenaday()
-               # segmentos = self.segmentoLibre(pto1x,pto1y,pto2x,pto2y,pto3x,pto3y)
-                #print segmentos
-               # angulos =  Mapa.calculaCirculo(segmentos[0],segmentos[1],
-                #                               segmentos[2],segmentos[3],
-                 #                              segmentos[4],segmentos[5], k)
-               # print angulos
                 angulos = Mapa.calculaCirculo(pto1x, pto1y,
-                                              pto2x,pto2y,
-                                              pto3x,pto3y, k)
-                self.caminoS = self.caminoS + [(angulos[0],angulos[1],angulos[2],angulos[3],angulos[4], angulos[5])]
-                k.create_arc(angulos[0],angulos[1],angulos[2],angulos[3],
-                             start=angulos[4], extent=angulos[5]+angulos[4],style=tk.ARC, fill="green")
-
-                #k.create_line(pto1x,pto1y,
-                              #segmentos[0], segmentos[1])
-               # k.create_line(segmentos[0], segmentos[1],
-               #               segmentos[2], segmentos[3])
-               # k.create_line(segmentos[2], segmentos[3],
-               #               segmentos[4], segmentos[5])
-               # k.create_line(segmentos[4], segmentos[5],
-               #               pto3x,pto3y)
+                                              pto2x, pto2y,
+                                              pto3x, pto3y, k)
+                self.caminoS = self.caminoS + [(angulos[0], angulos[1], angulos[2], angulos[3], angulos[4], angulos[5])]
+                print angulos
+                k.create_arc(angulos[0], angulos[1], angulos[2], angulos[3],
+                             start=-angulos[5], extent=angulos[5]-angulos[4], style=tk.ARC, fill="green")
                 x += 1
             # Los sobrantes se dejan con la linea recta
             pto1x = ptos[x].estado.dameCoordenadax()
             pto1y = ptos[x].estado.dameCoordenaday()
             pto2x = ptos[x + 1].estado.dameCoordenadax()
             pto2y = ptos[x + 1].estado.dameCoordenaday()
-            k.create_line((pto1x + pto2x) / 2,(pto2y+ pto1y) / 2,pto2x,pto2y)
+            k.create_line((pto1x + pto2x) / 2, (pto2y+ pto1y) / 2,pto2x,pto2y)
 
     @staticmethod
-    def calculaCirculo(x1,y1,x2,y2,x3,y3,k, ):
+    def calculaCirculo(x1, y1, x2, y2, x3, y3, k):
        if x1 == x2 or x2 == x1 :
             return False
        ptomd1 = ((x1+x2)/2, (y1+y2)/2)
        ptomd2 = ((x2+x3)/2, (y2+y3)/2)
-       k.create_rectangle(ptomd1[0], ptomd1[1], ptomd1[0], ptomd1[1], fill="red")
-       k.create_rectangle(ptomd2[0], ptomd2[1], ptomd2[0], ptomd2[1], fill="red")
-       pend1 = -(x2-x1)/(y2-y1)
-       pend2 =-(x2-x3)/(y2-y3)
+       #k.create_rectangle(ptomd1[0], ptomd1[1], ptomd1[0], ptomd1[1], fill="red")
+       #k.create_rectangle(ptomd2[0], ptomd2[1], ptomd2[0], ptomd2[1], fill="red")
+       if y2 - y1 == 0:
+           pend1 = 0
+       else:
+            pend1 = -(x2-x1)/(y2-y1)
+       if y2-y3 == 0:
+           pend2 = 0
+       else:
+           pend2 =-(x2-x3)/(y2-y3)
 
        #print pend1
        #print pend2
         # y = mx + b  => (y,mx,b)
        ec1 = (1, pend1, -pend1 * ptomd1[0] + ptomd1[1])
        ec2 = (1, pend2, -pend2 * ptomd2[0] + ptomd2[1])
-       '''
-       k.create_line(0,ec1[2],500,500*ec1[1] + ec1[2],fill="cyan3")
-       k.create_line(0,ec2[2],500,500*ec2[1] + ec2[2],fill="chocolate")
-       '''
-       #print ec1
-       #print ec2
+
+       k.create_line(0, ec1[2], 3000, 3000*ec1[1] + ec1[2],fill="cyan3")
+       k.create_line(0, ec2[2], 3000, 3000*ec2[1] + ec2[2],fill="chocolate")
+
+       print ec1
+       print ec2
         # Se igualan las y, se resuelve por x
        x = (ec2[2] - ec1[2]) / -(ec2[1] - ec1[1])
        y = x * ec1[1] + ec1[2]
@@ -249,24 +241,26 @@ class Mapa:  # Matriz de celdas
        tercerpto = (x+r,y+r)
        crtopto = (x+r,y-r)
        #print "R es : " + str(r)
-       '''
+
        k.create_line(x-r,y+r,x-r,y-r,fill="blue")
        k.create_line(x-r,y+r,x+r,y+r, fill="blue")
        k.create_line(x+r,y-r,x-r,y-r, fill="blue")
        k.create_line(x+r,y-r,x+r,y+r, fill="blue")
-       '''
+
        if beta < 0 :
            beta = 360 + beta
+       if alfa < 0 :
+            alfa = 360 + alfa
        return (x-r,y+r,x+r,y-r,alfa,beta)
 
     def calcula(self):
-        self.nodos.append(Nodo(0, 250, []))
-        self.nodos.append(Nodo(499, 499, []))
+        self.nodos.append(Nodo(15,300 , []))
+        self.nodos.append(Nodo(999, 999, []))
         k = Canvas(self.master, width=self.diccionario['longx'], height=self.diccionario['longy'])
         k.pack()
-        k.create_oval(0, 499, 0, 499, fill="red")
-        k.create_oval(499, 499, 499, 499, fill="red")
-        genera = 450
+        # k.create_oval(0, 499, 0, 499, fill="red")
+        # k.create_oval(499, 499, 499, 499, fill="red")
+        genera = 50
         while genera > 0:
             entro = False
             x = randint(0, self.diccionario['longx'])
@@ -322,10 +316,9 @@ class Mapa:  # Matriz de celdas
                     x1 = self.nodos[y].coordx
                     y1 = self.nodos[y].coordy
                     # Distancias aceptables
-                    if abs(x0 - x1) < 100 and abs(y0 - y1) < 100:
+                    if abs(x0 - x1) < 400 and abs(y0 - y1) < 400:
                         bool = True
                         for z in self.listaLineas:
-
                             if Mapa.interseccion(x0, y0, x1, y1, z[0], z[1], z[2], z[3]):
                                 bool = False
                         if bool:
@@ -499,15 +492,75 @@ class NodoBusqueda:
 
     def __repr__(self):
         return str(self.estado)
+    @staticmethod
+    def suaviza2(ptos, k):
+        # Se agarra el punto x[i], x[i+1], x[i+2]
+        # Y se observa si se puede suavizar la linea x[i]x[i+1]  x[i+1]x[i+2]
+        long = len(ptos)
+        x = 0
+        #Se suaviza la linea
+        nvosptos = []
+        print long
+        print "Los puntos son :  ["+ str(ptos) + "]"
+        if long <= 2:
+            pto1x = ptos[x][0]
+            pto1y = ptos[x][1]
+            pto2x = ptos[x + 1][0]
+            pto2y = ptos[x + 1][1]
+            k.create_line(pto1x, pto1y, pto2x, pto2y)
+        else:
+            # Se dibuja la primer linea
+            pto1x = ptos[x][0]
+            pto1y = ptos[x][1]
+            pto2x = ptos[x + 1][0]
+            pto2y = ptos[x + 1][1]
+            k.create_line(pto1x, pto1y, (pto1x + pto2x)/2, (pto1y +pto2y)/2)
+            while x+2 < long :
+                pto1x = ptos[x][0]
+                pto1y = ptos[x][0]
+                pto2x = ptos[x + 1][0]
+                pto2y = ptos[x + 1][1]
+                pto3x = ptos[x + 2][0]
+                pto3y = ptos[x + 2][1]
+               # segmentos = self.segmentoLibre(pto1x,pto1y,pto2x,pto2y,pto3x,pto3y)
+                #print segmentos
+               # angulos =  Mapa.calculaCirculo(segmentos[0],segmentos[1],
+                #                               segmentos[2],segmentos[3],
+                 #                              segmentos[4],segmentos[5], k)
+               # print angulos
+                angulos = Mapa.calculaCirculo(pto1x, pto1y,
+                                              pto2x, pto2y,
+                                              pto3x, pto3y, k)
+
+                k.create_arc(angulos[0], angulos[1], angulos[2], angulos[3],
+                                          start=-angulos[5], extent=angulos[5]-angulos[4], style=tk.ARC, fill="green")
+                #k.create_line(pto1x,pto1y,
+                              #segmentos[0], segmentos[1])
+               # k.create_line(segmentos[0], segmentos[1],
+               #               segmentos[2], segmentos[3])
+               # k.create_line(segmentos[2], segmentos[3],
+               #               segmentos[4], segmentos[5])
+               # k.create_line(segmentos[4], segmentos[5],
+               #               pto3x,pto3y)
+                x += 1
+            # Los sobrantes se dejan con la linea recta
+            pto1x = ptos[x][0]
+            pto1y = ptos[x][1]
+            pto2x = ptos[x + 1][0]
+            pto2y = ptos[x + 1][1]
+            k.create_line((pto1x + pto2x) / 2,(pto2y+ pto1y) / 2,pto2x,pto2y)
+
 
 
 if __name__ == '__main__':
-    m1 = Mapa(500,500,[[(0,0),(150,200),(300,110)],[(50,50),(25,25),(25,50),(50,25)]])
+
+    m1 = Mapa(1000,1000,[[(0,0),(150,200),(300,110)],[(50,50),(25,25),(25,50),(50,25)]])
+    '''
     m1.calcula()
     print m1.nodos[0]
     print m1.nodos[1]
     alg = AEstrella(m1.nodos[0], m1.nodos[1], m1.nodos)
-    num = 500
+    num = 200
     while not alg.resuleto and num > 0:
         alg.expandeNodoSiguiente()
         num -=1
@@ -529,14 +582,13 @@ if __name__ == '__main__':
     #master.after(ROS_RATE, exitros)
     #mainloop()
     #print m1.segmentoLibre(0,0,50,50,100,100)
+    
     master = Tk()
+    
+    
     k = Canvas(master, width=1000, height=1000)
     k.pack()
-    #for x in alg.solucion:
-     #   k.create_rectangle(x.estado.dameCoordenadax(), x.estado.dameCoordenaday(), x.estado.dameCoordenadax()+15,
-      #                     x.estado.dameCoordenaday()+15, fill="red")
-      #  if x != len(alg.solucion)-1:
-      #      k.create_line(x.estado.dameCoordenadax(),)
+    
     for x in range(len(alg.solucion)):
         k.create_rectangle(alg.solucion[x].estado.dameCoordenadax(),
                            alg.solucion[x].estado.dameCoordenaday(),
@@ -548,11 +600,14 @@ if __name__ == '__main__':
             k.create_line(alg.solucion[x].estado.dameCoordenadax(),
                       alg.solucion[x].estado.dameCoordenaday(),
                       alg.solucion[(x+1)% len(alg.solucion)].estado.dameCoordenadax(),
-                      alg.solucion[(x+1)%len(alg.solucion)].estado.dameCoordenaday(),fill="black")
+                      alg.solucion[(x+1)%len(alg.solucion)].estado.dameCoordenaday(),fill="red")
 
-    m1.suaviza(alg.solucion, k)
-
+    
     '''
+
+    #m1.suaviza(alg.solucion, k)
+    '''
+    
          4
          |
     3____|____2
@@ -585,18 +640,18 @@ if __name__ == '__main__':
     #k.create_arc(angulos[0], angulos[1], angulos[2], angulos[3],
     #             start=-angulos[5], extent=angulos[5]-angulos[4], style=tk.ARC, fill="green")
     mainloop()
-    # master = Tk()
-    # k = Canvas(master, width=500, height=500)
-    # k.pack()
-    # k.create_rectangle(0,15,0,15)
-    # k.create_rectangle(100,25,100,25)
-    # k.create_rectangle(50,50,50,50)
-    # mainloop()
-    # master = Tk()
-    # k = Canvas(master, width=500, height=500)
-    # k.pack()
-    # angulos =  Mapa.calculaCirculo(0,15,100,25,50,50)
-    # print angulos
-    # k.create_arc(0,15,50,50,start = angulos[0], extent = angulos[1], style=tk.ARC)
-    # mainloop()
-    # print Mapa.ecuacionCuadratica(2,5,7    ,7,9,9)
+    master = Tk()
+
+    Nodo1 = NodoBusqueda(None, Nodo(800, 800, []))
+    Nodo2 = NodoBusqueda(None, Nodo(780, 750, []))
+    Nodo3 = NodoBusqueda(None, Nodo(700, 720, []))
+    Nodo4 = NodoBusqueda(None, Nodo(500, 420, []))
+
+    k = Canvas(master, width=5000, height=5000)
+    k.pack()
+
+   # nums = [(999 , 999), (681 , 925), (301 , 605), (15 , 300)]
+    nodos = [Nodo1,Nodo2,Nodo3,Nodo4]
+    m1.suaviza(nodos,k)
+   # NodoBusqueda.suaviza2(nums, k)
+    mainloop()
