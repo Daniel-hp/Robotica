@@ -191,21 +191,51 @@ class Mapa:  # Matriz de celdas
                 self.caminoS = self.caminoS + [(angulos[0], angulos[1], angulos[2], angulos[3], angulos[4], angulos[5])]
                 print angulos
                 k.create_arc(angulos[0], angulos[1], angulos[2], angulos[3],
-                             start=-angulos[5], extent=angulos[5]-angulos[4], style=tk.ARC, fill="green")
+                             start=0, extent = 359, style=tk.ARC)
+                #start=-angulos[5], extent=angulos[5]-angulos[4],
+                #start=0, extent = 359
+
                 x += 1
+                print x
             # Los sobrantes se dejan con la linea recta
-            pto1x = ptos[x].estado.dameCoordenadax()
+
+            pto1x =ptos[x].estado.dameCoordenadax() ##math.fabs(angulos[2]-angulos[0])
             pto1y = ptos[x].estado.dameCoordenaday()
             pto2x = ptos[x + 1].estado.dameCoordenadax()
             pto2y = ptos[x + 1].estado.dameCoordenaday()
-            k.create_line((pto1x + pto2x) / 2, (pto2y+ pto1y) / 2,pto2x,pto2y)
+
+            print "............."
+            print ptos[x].estado.dameCoordenadax()
+            print ptos[x].estado.dameCoordenaday()
+            print pto1x
+            print pto1y
+            print pto2x
+            print pto2y
+            print "............"
+
+            k.create_line((pto1x+pto2x)/2, (pto2y +pto1y)/2, pto2x, pto2y)
+
+    @staticmethod
+    def calculaBisectriz(x1,y1,x2,y2):
+        ptomedio = ((x1+x2)/2,(y1+y2)/2)
+        pendiente = -(x2-x1) / (y2-y1)
+        # Y = mx + b ==> (y,mx,b)
+        ecuacion = (ptomedio[1],pendiente*ptomedio[0],ptomedio[1]-pendiente*ptomedio[0])
+        bisectriz = (1,pendiente,ecuacion[2])
+
+
+        return bisectriz
 
     @staticmethod
     def calculaCirculo(x1, y1, x2, y2, x3, y3, k):
+       print "Calculo circulo de los puntos : ("+str(x1)+", "+str(y1)+"), ("+\
+       str(x2) + ", "+ str(y2)+ "), ("+ str(x3) + ", " + str(y3) + ")"
+       ptomd1 = ((x1 + x2) / 2, (y1 + y2) / 2)
+       ptomd2 = ((x2 + x3) / 2, (y2 + y3) / 2)
+       '''
        if x1 == x2 or x2 == x1 :
-            return False
-       ptomd1 = ((x1+x2)/2, (y1+y2)/2)
-       ptomd2 = ((x2+x3)/2, (y2+y3)/2)
+           raise EXCEPTION
+       
        #k.create_rectangle(ptomd1[0], ptomd1[1], ptomd1[0], ptomd1[1], fill="red")
        #k.create_rectangle(ptomd2[0], ptomd2[1], ptomd2[0], ptomd2[1], fill="red")
        if y2 - y1 == 0:
@@ -222,36 +252,103 @@ class Mapa:  # Matriz de celdas
         # y = mx + b  => (y,mx,b)
        ec1 = (1, pend1, -pend1 * ptomd1[0] + ptomd1[1])
        ec2 = (1, pend2, -pend2 * ptomd2[0] + ptomd2[1])
+       '''
+       if y2 - y1 == 0:
+           pend1 = 0
+       else:
+           pend1 = - ((x2 - x1) / (y2 - y1))
+           print pend1
+       if y2 - y3 == 0:
+           pend2 = 0
+       else:
+           pend2 = -(x2 - x3) / (y2 - y3)
 
-       k.create_line(0, ec1[2], 3000, 3000*ec1[1] + ec1[2],fill="cyan3")
-       k.create_line(0, ec2[2], 3000, 3000*ec2[1] + ec2[2],fill="chocolate")
+       ptomcercano = ptomd1 if math.sqrt(math.pow(x2 - ptomd1[0], 2) + math.pow(y2 - ptomd1[1], 2)) \
+                               < math.sqrt(math.pow(x2 - ptomd2[0], 2) + math.pow(y2 - ptomd2[1], 2)) else ptomd2
+       pendiente = pend1 if ptomcercano == ptomd1 else pend2
+       print "El punto mas cercano es : " + str(ptomcercano)
 
-       print ec1
-       print ec2
-        # Se igualan las y, se resuelve por x
+        # Se hacen cosas raras
+       # Ax + By + C = 0  ==> (A,B,C)
+       #primec = (y2 - y1, x2 - x1, -(y2 - y1) * x1 - y1 * (x2 - x1))
+       primec = (y2 - y1, -x2 + x1 + (y2 - y1) * x1 - y1 * (x2 - x1))
+       segundaec = (y3 - y2, -x3 + x2, (y3 - y2) * x1 - y1 * (x3 - x2))
+       #segundaec = (y3 - y2, x3 - x2, (y3 - y2) * x3 - y2 * (x3 - x2))
+       raiz1 = math.sqrt(math.pow(primec[0], 2) + math.pow(primec[1], 2))
+       raiz2 = math.sqrt(math.pow(segundaec[0], 2) + math.pow(segundaec[1], 2))
+        # Calcular el punto medio mas cercano y usando dicho punto y el punto medio mas cercano
+        # calcular las pendientes y  calcular las ecuaciones con puntos pendiente, exactamente lo hecho anterior
+        # sustituyendo el punto mas lejano por el punto obtenido por medio de la bisectriz
+
+       pendientebiz = -(raiz2*primec[0] - raiz1*segundaec[0]) / (raiz2*primec[1]- raiz1*segundaec[1])
+       # Se calculan las ecuaciones puntopendiente :
+       ec1 = (1, pendiente, -pendiente * ptomcercano[0] + ptomcercano[1])
+       ec2 = (1, pendientebiz, -pendientebiz * x2 + y2)  # bisectriz
+
+       #### PRUEBA DE BISECTRIZ
+       # Se regresa de la forma y = mx + b ==> (y,mx,b)
+       ptos = Mapa.calculaBisectriz(x1,y1,x2,y2)
+       ptos2 = Mapa.calculaBisectriz(x2,y2,x3,y3)
+       k.create_line(0, ptos[2], 3000, 3000 * ptos[1] + ptos[2], fill="blue")
+       k.create_line(0, ptos2[2], 3000, 3000 * ptos2[1] + ptos2[2], fill="red")
+       # x = (-b+y)/m
+       print "PTOS SON : "
+       print ptos
+       print ptos2
+       print "FIN DE"
+       xInterseccion = (ptos2[0]-ptos[2])/(ptos[1]-ptos2[1])
+       yInterseccion =  ptos[1] * xInterseccion + ptos[2]
+       print "LA INTERSECCION ES : (" + str(xInterseccion) +", " +str(yInterseccion) + ")"
+       pp = ((x1 + x2) / 2, (y1 + y2) / 2)
+       pp2 = ((x3 + x2) / 2, (y3 + y2) / 2)
+       print "LA DISTANCIA DE ptomd1 a la interseccion es de : " + str(math.sqrt(math.pow(pp[0]- xInterseccion, 2) +math.pow(yInterseccion-pp[1], 2)))
+       print "LA DISTANCE DE ptom2 a la interseccion es de : " + str(math.sqrt(math.pow(pp2[0]-xInterseccion, 2) +math.pow(yInterseccion-pp2[1], 2)))
+       #### FINALIZA PRUEBA
+        #Dibuja las ecuaciones
+       #k.create_line(0, ec1[2], 3000, 3000*ec1[1] + ec1[2],fill="cyan3")
+       #k.create_line(0, ec2[2], 3000, 3000*ec2[1] + ec2[2],fill="chocolate")
+
+       ##print ec1
+       ##print ec2
+       # # Se igualan las y, se resuelve por x
        x = (ec2[2] - ec1[2]) / -(ec2[1] - ec1[1])
        y = x * ec1[1] + ec1[2]
+       k.create_rectangle(x,y,x+10,y+10, fill="cyan")
        #print "Se intersectan en : " + str(x) + str(y)
        # (x,y) representa el centro del circulo
-       r = math.sqrt(math.pow(x-ptomd1[0], 2) + math.pow(y-ptomd1[1], 2))
+       r = math.sqrt(math.pow(ptomcercano[0]- x, 2) + math.pow(ptomcercano[1] - y, 2))
+       print "Radio 1 :" + str(r)
+       r = math.sqrt(math.pow(x2- x, 2) +math.pow(y-y2, 2))
+       print "Radio 2: "+  str(r)
+       k.create_rectangle((ptomd1[0], ptomd1[1], ptomd1[0] + 10, ptomd1[1] + 10))
+       k.create_rectangle((ptomd2[0], ptomd2[1], ptomd2[0] + 10, ptomd2[1] + 10))
        alfa = math.degrees(math.atan2((ptomd2[1] - y), (ptomd2[0] - x)))
        beta = math.degrees(math.atan2((ptomd1[1] - y), (ptomd1[0] - x)))
-       primpto = (x-r,y+r)
-       segpto = (x-r,y-r)
-       tercerpto = (x+r,y+r)
-       crtopto = (x+r,y-r)
+       primpto = (x-r, y+r)
+       segpto = (x-r, y-r)
+       tercerpto = (x+r, y+r)
+       crtopto = (x+r, y-r)
        #print "R es : " + str(r)
+        #Dibuja el cuadrado
+       #k.create_line(x-r,y+r,x-r,y-r,fill="blue")
+       #k.create_line(x-r,y+r,x+r,y+r, fill="blue")
+       #k.create_line(x+r,y-r,x-r,y-r, fill="blue")
+       #k.create_line(x+r,y-r,x+r,y+r, fill="blue")
 
-       k.create_line(x-r,y+r,x-r,y-r,fill="blue")
-       k.create_line(x-r,y+r,x+r,y+r, fill="blue")
-       k.create_line(x+r,y-r,x-r,y-r, fill="blue")
-       k.create_line(x+r,y-r,x+r,y+r, fill="blue")
+        ### Calcular el punto mas cercano al de enmedio, calcular las cosas con la ecuacion de dicho punto y la bisectriz del punto medio
 
-       if beta < 0 :
+
+        #Se calcula la pendiente
+
+       if beta < 0:
            beta = 360 + beta
-       if alfa < 0 :
+       if alfa < 0:
             alfa = 360 + alfa
-       return (x-r,y+r,x+r,y-r,alfa,beta)
+            k.create_rectangle(x - r, y - r, x - r + 10, y - r + 10,fill="red")
+       k.create_rectangle(x + r, y + r, x + r + 10, y + r + 10, fill="purple")
+       r = math.sqrt(math.pow(x - (x-r), 2) + math.pow(y - (y - r), 2))
+
+       return (x - r, y - r, x + r, y + r, alfa, beta)
 
     def calcula(self):
         self.nodos.append(Nodo(15,300 , []))
@@ -650,8 +747,18 @@ if __name__ == '__main__':
     k = Canvas(master, width=5000, height=5000)
     k.pack()
 
+    k.create_rectangle(800, 800, 800, 800, fill="red")
+    k.create_rectangle(780, 750, 780, 750, fill="cyan")
+    k.create_rectangle(700, 720, 700, 720, fill="orange")
+    k.create_rectangle(500, 420, 500, 420, fill="purple")
+
+    k.create_line(800, 800, 780, 750, fill="red")
+    k.create_line(700, 720, 780, 750, fill="red")
+    k.create_line(500, 420, 700, 720, fill="red")
+    print m1.calculaBisectriz(2,5,8,3)
    # nums = [(999 , 999), (681 , 925), (301 , 605), (15 , 300)]
     nodos = [Nodo1,Nodo2,Nodo3,Nodo4]
     m1.suaviza(nodos,k)
+   # m1.suaviza([Nodo4,Nodo3,Nodo2,Nodo1],k)
    # NodoBusqueda.suaviza2(nums, k)
     mainloop()
