@@ -192,7 +192,7 @@ class Mapa:  # Matriz de celdas
                 self.caminoS = self.caminoS + [(angulos[0], angulos[1], angulos[2], angulos[3], angulos[4], angulos[5])]
                 print angulos
                 k.create_arc(angulos[0], angulos[1], angulos[2], angulos[3],
-                             start=0, extent=359, style=tk.ARC, fill="green")
+                             start=-angulos[5], extent=angulos[5] - angulos[4], style=tk.ARC, fill="green")
                 # start=-angulos[5], extent=angulos[5] - angulos[4]
                 x += 1
             # Los sobrantes se dejan con la linea recta
@@ -206,6 +206,11 @@ class Mapa:  # Matriz de celdas
     def calculaCirculo(x1, y1, x2, y2, x3, y3, k):
         ptomd1 = ((x1 + x2) / 2, (y1 + y2) / 2)
         ptomd2 = ((x2 + x3) / 2, (y2 + y3) / 2)
+        k.create_rectangle(x1, y1, x1 + 10, y1 + 10, fill="green")
+        k.create_rectangle(x2, y2, x2 + 10, y2 + 10, fill="green")
+        k.create_rectangle(x3, y3, x3 + 10, y3 + 10, fill="green")
+        k.create_rectangle(ptomd1[0], ptomd1[1], ptomd1[0] + 10, ptomd1[1] + 10)
+        k.create_rectangle(ptomd2[0], ptomd2[1], ptomd2[0] + 10, ptomd2[1] + 10)
         # Las lineas comentadas corresponden a los circulos formados
         # previamente
         '''
@@ -280,20 +285,18 @@ class Mapa:  # Matriz de celdas
         # alfa = math.degrees(math.atan2((ptomcercano[1] - y), (ptomcercano[0] - x)))
         # beta = math.degrees(math.atan2((ptomenoscercano[1] - y), (ptomenoscercano[0] - x)))
         # FINALIZA DECENTE
-        alfa = math.degrees(math.atan2((ptomenoscercano[1] - y), (ptomenoscercano[0] - x)))
-        beta = math.degrees(math.atan2((ptomcercano[1] - y), (ptomcercano[0] - x)))
+        alfa = math.degrees(math.atan2((ptomcercano[1] - y), (ptomcercano[0] - x)))
+        beta = math.degrees(math.atan2((ptomenoscercano[1] - y), (ptomenoscercano[0] - x)))
         primpto = (x - r, y + r)
         segpto = (x - r, y - r)
         tercerpto = (x + r, y + r)
         crtopto = (x + r, y - r)
         print "r es : " + str(r)
         print "r2 es : " + str(r2)
-
-       # k.create_line(x - r, y + r, x - r, y - r, fill="blue")
-       # k.create_line(x - r, y + r, x + r, y + r, fill="blue")
-       # k.create_line(x + r, y - r, x - r, y - r, fill="blue")
-       # k.create_line(x + r, y - r, x + r, y + r, fill="blue")
-
+        #k.create_line(x - r, y + r, x - r, y - r, fill="blue")
+        #k.create_line(x - r, y + r, x + r, y + r, fill="blue")
+        #k.create_line(x + r, y - r, x - r, y - r, fill="blue")
+        #k.create_line(x + r, y - r, x + r, y + r, fill="blue")
         if beta < 0:
             beta = 360 + beta
         if alfa < 0:
@@ -301,13 +304,15 @@ class Mapa:  # Matriz de celdas
         return x - r, y + r, x + r, y - r, alfa, beta
 
     def calcula(self):
-        self.nodos.append(Nodo(15, 300, []))
-        self.nodos.append(Nodo(999, 999, []))
+        self.nodos.append(Nodo(100, 0, []))
+        self.nodos.append(Nodo(800, 750, []))
         k = Canvas(self.master, width=self.diccionario['longx'], height=self.diccionario['longy'])
+        k.create_rectangle(0,100,10,110, fill="red")
+        k.create_rectangle(800,400,810,410, fill="red")
         k.pack()
         # k.create_oval(0, 499, 0, 499, fill="red")
         # k.create_oval(499, 499, 499, 499, fill="red")
-        genera = 20
+        genera = 750
         while genera > 0:
             entro = False
             x = randint(0, self.diccionario['longx'])
@@ -364,7 +369,7 @@ class Mapa:  # Matriz de celdas
                     x1 = self.nodos[y].coordx
                     y1 = self.nodos[y].coordy
                     # Distancias aceptables
-                    if abs(x0 - x1) < 400 and abs(y0 - y1) < 400:
+                    if abs(x0 - x1) < 130 and abs(y0 - y1) < 130:
                         bool = True
                         for z in self.listaLineas:
                             if Mapa.interseccion(x0, y0, x1, y1, z[0], z[1], z[2], z[3]):
@@ -552,6 +557,7 @@ class NodoBusqueda:
 
 if __name__ == '__main__':
     m1 = Mapa(1000, 1000, [[(0, 0), (150, 200), (300, 110)], [(50, 50), (25, 25), (25, 50), (50, 25)]])
+
     m1.calcula()
     print m1.nodos[0]
     print m1.nodos[1]
@@ -594,6 +600,7 @@ if __name__ == '__main__':
                       alg.solucion[x].estado.dameCoordenaday(),
                       alg.solucion[(x+1)% len(alg.solucion)].estado.dameCoordenadax(),
                       alg.solucion[(x+1)%len(alg.solucion)].estado.dameCoordenaday(),fill="red")
+
     '''
         #         4
         #         |
@@ -627,27 +634,36 @@ if __name__ == '__main__':
     #             start=-angulos[5], extent=angulos[5]-angulos[4], style=tk.ARC, fill="green")
     mainloop()
     '''
-    #master = Tk()
 
+    master = Tk()
+    '''
     Nodo1 = NodoBusqueda(None, Nodo(800, 800, []))
     Nodo2 = NodoBusqueda(None, Nodo(780, 750, []))
     Nodo3 = NodoBusqueda(None, Nodo(700, 720, []))
     Nodo4 = NodoBusqueda(None, Nodo(500, 420, []))
-
-    #k3 = Canvas(master, width=5000, height=5000)
-    #k3.pack()
-    #k3.create_rectangle(800, 800, 810, 810, fill="red")
-    #k3.create_rectangle(780, 750, 790, 760, fill="red")
-    #k3.create_rectangle(700, 720, 710, 730, fill="red")
-    #k3.create_rectangle(500, 420, 510, 430, fill="red")
-
-    #k.create_line(800, 800, 780, 750, fill="red")
-    #k.create_line(780, 750, 700, 720, fill="red")
-    #k.create_line(700, 720, 500, 420, fill="red")
-
+    Nodo5 = NodoBusqueda(None, Nodo(300, 300, []))
+    Nodo6 = NodoBusqueda(None, Nodo(900, 900, []))
+    '''
+    k3 = Canvas(master, width=1000, height=1000)
+    k3.pack()
+    '''
+    k3.create_rectangle(800, 800, 810, 810, fill="red")
+    k3.create_rectangle(780, 750, 790, 760, fill="red")
+    k3.create_rectangle(700, 720, 710, 730, fill="red")
+    k3.create_rectangle(500, 420, 510, 430, fill="red")
+    # Nuevos Nodos
+    k3.create_rectangle(900,900,910,910, fill="red")
+    k3.create_rectangle(300,300,310,310, fill="red")
+    # Lineas
+    k3.create_line(900, 900, 800, 800, fill="red")
+    k3.create_line(800, 800, 780, 750, fill="red")
+    k3.create_line(780, 750, 700, 720, fill="red")
+    k3.create_line(700, 720, 500, 420, fill="red")
+    k3.create_line(500, 420, 300, 300, fill="red")
+    '''
     # nums = [(999 , 999), (681 , 925), (301 , 605), (15 , 300)]
-    nodos = [Nodo1, Nodo2, Nodo3, Nodo4]
-    #m1.suaviza(nodos, k)
+    #nodos = [Nodo6, Nodo1, Nodo2, Nodo3, Nodo4, Nodo5]
+    #m1.suaviza(nodos, k3)
     m1.suaviza(alg.solucion, k3)
     # NodoBusqueda.suaviza2(nums, k)
     mainloop()
