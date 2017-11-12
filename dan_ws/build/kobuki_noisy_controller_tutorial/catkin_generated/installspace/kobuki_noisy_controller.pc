@@ -1,0 +1,8 @@
+prefix=/home/dan-hp/Robotica/dan_ws/install
+
+Name: kobuki_noisy_controller
+Description: Description of kobuki_noisy_controller
+Version: 0.0.0
+Cflags: -I/home/dan-hp/Robotica/dan_ws/install/include
+Libs: -L/home/dan-hp/Robotica/dan_ws/install/lib -lbump_blink_sound_controller_nodelet
+Requires: kobuki_msgs nodelet roscpp std_msgs yocs_controllers

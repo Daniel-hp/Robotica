@@ -1,0 +1,8 @@
+<launch>
+  <node pkg="nodelet" type="nodelet" name="bump_blink_sound_controller" args="load kobuki_noisy_controller/BumpBlinkSoundControllerNodelet mobile_base_nodelet_manager">
+    <remap from="bump_blink_sound_controller/events/bumper" to="mobile_base/events/bumper"/>
+    <remap from="bump_blink_sound_controller/commands/led1" to="mobile_base/commands/led1"/>
+    <remap from="bump_blink_sound_controller/commands/sound" to="mobile_base/commands/sound"/>
+  </node>
+</launch>
+

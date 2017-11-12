@@ -1,0 +1,8 @@
+prefix=/home/dan-hp/Robotica/dan_ws/devel
+
+Name: suavizar
+Description: Description of suavizar
+Version: 0.0.0
+Cflags: 
+Libs: -L/home/dan-hp/Robotica/dan_ws/devel/lib 
+Requires: 

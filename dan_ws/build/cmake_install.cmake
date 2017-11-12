@@ -117,6 +117,12 @@ endif()
 if(NOT CMAKE_INSTALL_LOCAL_ONLY)
   # Include the install script for each subdirectory.
   include("/home/dan-hp/Robotica/dan_ws/build/gtest/cmake_install.cmake")
+  include("/home/dan-hp/Robotica/dan_ws/build/beginner_tutorials/cmake_install.cmake")
+  include("/home/dan-hp/Robotica/dan_ws/build/ejercicio/cmake_install.cmake")
+  include("/home/dan-hp/Robotica/dan_ws/build/kobuki_controller_tutorial/cmake_install.cmake")
+  include("/home/dan-hp/Robotica/dan_ws/build/kobuki_noisy_controller_tutorial/cmake_install.cmake")
+  include("/home/dan-hp/Robotica/dan_ws/build/prueba/cmake_install.cmake")
+  include("/home/dan-hp/Robotica/dan_ws/build/suavizar/cmake_install.cmake")
 
 endif()
 

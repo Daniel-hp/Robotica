@@ -1,0 +1,8 @@
+prefix=/home/dan-hp/Robotica/dan_ws/install
+
+Name: kobuki_controller_tutorial
+Description: Description of kobuki_controller_tutorial
+Version: 0.0.0
+Cflags: 
+Libs: -L/home/dan-hp/Robotica/dan_ws/install/lib 
+Requires: 

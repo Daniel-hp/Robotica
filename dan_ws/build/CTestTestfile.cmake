@@ -5,3 +5,9 @@
 # This file includes the relevant testing commands required for 
 # testing this directory and lists subdirectories to be tested as well.
 subdirs(gtest)
+subdirs(beginner_tutorials)
+subdirs(ejercicio)
+subdirs(kobuki_controller_tutorial)
+subdirs(kobuki_noisy_controller_tutorial)
+subdirs(prueba)
+subdirs(suavizar)

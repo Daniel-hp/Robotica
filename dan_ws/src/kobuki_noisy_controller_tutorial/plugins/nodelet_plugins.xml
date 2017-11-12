@@ -1,0 +1,8 @@
+<library path="lib/libbump_blink_sound_controller_nodelet">
+  <class name="kobuki_noisy_controller/BumpBlinkSoundControllerNodelet" type="kobuki::BumpBlinkSoundControllerNodelet" base_class_type="nodelet::Nodelet">
+    <description>
+      Nodelet for a simple blink and sound when bump controller
+    </description>
+  </class>
+</library>
+
