@@ -78,6 +78,41 @@ class Mapa:  # Matriz de celdas
                 break
         return True if contador % 2 == 1 else False
 
+    # Dada una ecuacion de linea, una ecuacin de curva y dos intervalos indica si chocan
+    @staticmethod
+    def chocanIntervalos(linea, curva, lx1, ly1, lx2, ly2, cx1, cy1, cx2, cy2):
+        # Se 'igualan ' las ecuaciones a 0
+        # To do normal
+        if linea[2] is True and curva[3] is True:
+            zero = (curva[0], curva[1] - linea[0], curva[2] - linea[1])
+            a = zero[0]
+            b = zero[1]
+            c = zero[2]
+            # x = (-b +- sqrt( b^2 - 4ac))/2a
+            raiz = math.pow(b, 2) - 4 * a * c
+            if raiz < 0:  # Si la raiz es imaginaria implica no hay interseccion en los numeros reales
+                return False
+            x1 = (-b + math.sqrt(raiz)) / 2 * a
+            x2 = (-b - math.sqrt(raiz)) / 2 * a
+            # Se sustituye primero x1
+            y1 = linea[0] * x1 + linea[1]
+            y2 = curva[0] * math.pow(x1, 2) + curva[1] * x1 + curva[2]
+            # Se obtiene el punto
+            intersc1 = (x1, y1)
+            y11 = linea[0] * x2 + linea[1]
+            y22 = curva[0] * math.pow(x2, 2) + curva[1] * x2 + curva[2]
+            intersc2 = (x2, y22)
+
+            cd1 = lx1 <= intersc1 <= lx2 and ly1 <= intersec2 <= ly2  # Se verifica (x,y) esta en la linea
+            cd2 = cd1 = lx1 <= intersc1 <= lx2 and ly1 <= intersec2 <= ly2  # Se verifica (x,y) esta en la linea  # Se verifica (x,y) esta en la linea
+            cd3 = cx1 <= intersc1 <= cx2 and cy1 <= intersec1 <= cy2  # Se verifica (x,y) esta en la linea
+            cd4 = cx1 <= intersc2 <= cx2 and cy1 <= intersec2 <= cy2  # Se verifica (x,y) esta en la linea
+
+            # Primer condicion
+            cc1 = cd1 and cd3
+            cc2 = cd2 and cd4
+            return cc1 or cc2
+            # Se verifican los intervalos
 
     # Para suavizar se crean lineas imaginarias que abarcan el espacio a donde se reduciran, si
     # no chocan se hace la curva, si chocan se vuelve a calcular, ahora a la mitad de la distancia elegida
@@ -148,6 +183,7 @@ class Mapa:  # Matriz de celdas
                                               pto2x, pto2y,
                                               pto3x, pto3y, k)
                 self.caminoS = self.caminoS + [(angulos[0], angulos[1], angulos[2], angulos[3], angulos[4], angulos[5])]
+                print angulos
                 k.create_arc(angulos[0], angulos[1], angulos[2], angulos[3],
                              start=-angulos[5], extent=angulos[5] - angulos[4], style=tk.ARC, fill="green")
                 # start=-angulos[5], extent=angulos[5] - angulos[4]
@@ -183,7 +219,6 @@ class Mapa:  # Matriz de celdas
             pend2 = 0
         else:
             pend2 = -(x2 - x3) / (y2 - y3)
-
             # print pend1
             # print pend2
             # y = mx + b  => (y,mx,b)
@@ -261,15 +296,15 @@ class Mapa:  # Matriz de celdas
         return x - r, y + r, x + r, y - r, alfa, beta
 
     def calcula(self):
-        self.nodos.append(Nodo(120, 120, []))  # NOdo Inicial
-        self.nodos.append(Nodo(690, 500, []))  # Nodo Final
+        self.nodos.append(Nodo(100, 0, []))
+        self.nodos.append(Nodo(980, 980, []))
         k = Canvas(self.master, width=self.diccionario['longx'], height=self.diccionario['longy'])
-        k.create_rectangle(120, 120, 130, 130, fill="red")  # Nodo Inicial
-        k.create_rectangle(690, 500, 700, 510, fill="red")  # Nodo Final
+        k.create_rectangle(100,0,110,10, fill="red")
+        k.create_rectangle(980,980,1000,1000, fill="red")
         k.pack()
         # k.create_oval(0, 499, 0, 499, fill="red")
         # k.create_oval(499, 499, 499, 499, fill="red")
-        genera = 500
+        genera = 1000
         intentos = 0
         while genera > 0:
             intentos += 1
@@ -311,10 +346,7 @@ class Mapa:  # Matriz de celdas
                     y0 = self.obstaculos[z][x][1]
                     x1 = self.obstaculos[z][y][0]
                     y1 = self.obstaculos[z][y][1]
-
                     if x0 != x1 and y0 != y1:
-                        ## Para dibujar los rectangulos
-                        k.create_rectangle(x0, y0, x1, y1, fill="red")
                         seEncuentra = False
                         for al in self.listaLineas:
                             arr = [al[0], al[1], al[2], al[3]]
@@ -332,7 +364,7 @@ class Mapa:  # Matriz de celdas
                     x1 = self.nodos[y].coordx
                     y1 = self.nodos[y].coordy
                     # Distancias aceptables
-                    if abs(x0 - x1) < 100 and abs(y0 - y1) < 100:
+                    if abs(x0 - x1) < 180 and abs(y0 - y1) < 180:
                         bool = True
                         for z in self.listaLineas:
                             if Mapa.interseccion(x0, y0, x1, y1, z[0], z[1], z[2], z[3]):
@@ -518,44 +550,40 @@ class NodoBusqueda:
     def __repr__(self):
         return str(self.estado)
 
-
 if __name__ == '__main__':
-    obstaculos = [
-                  [(0, 950), (0, 1000), (1300, 950), (1300, 1000)], #  CHECK
-                  [(0, 0), (100, 0), (0, 1000), (100, 1000)], #  CHECK
-                  [(1250, 0), (1300, 0), (1250, 950), (1250, 1000)], #CHECK
-                  [(400, 250), (650, 250), (400, 650), (650, 650)],
-                  [(850, 250), (850, 650), (1100, 250), (1100, 650)]
-                  ]
-    m1 = Mapa(1300, 1000, obstaculos)
+    m1 = Mapa(5000, 5000, [[(0, 0), (150, 200), (300, 110)], [(50, 50), (25, 25), (25, 50), (50, 25)]])
+
     m1.calcula()
+    print m1.nodos[0]
+    print m1.nodos[1]
+    print "EMPIEZA ALGORITMO: "
     alg = AEstrella(m1.nodos[0], m1.nodos[1], m1.nodos)
     num = 200
     while not alg.resuleto and num > 0:
         alg.expandeNodoSiguiente()
-        num -= 1
+        num -=1
         print num
-    # Se dibujan las lineas del recorrido obtenido por A*
+    #Se dibujan las lineas del recorrido obtenido por A*
     # Se suavizan las lineas obtenidasd anteriormente
-    # print alg.solucion[0]
-    # print alg.solucion[-1]
-    # master.after(ROS_RATE, exitros)
-    # mainloop()
+    #print alg.solucion[0]
+    #print alg.solucion[-1]
+    #master.after(ROS_RATE, exitros)
+    #mainloop()
     master = Tk()
-    k3 = Canvas(master, width=1300, height=1000)
+    k3 = Canvas(master, width=5000, height=5000)
     k3.pack()
     for x in range(len(alg.solucion)):
         k3.create_rectangle(alg.solucion[x].estado.dameCoordenadax(),
-                            alg.solucion[x].estado.dameCoordenaday(),
-                            alg.solucion[x].estado.dameCoordenadax() + 10,
-                            alg.solucion[x].estado.dameCoordenaday() + 10, fill="red"
-                            )
-        # Para evitar hacer una linea de la meta al inicio
-        if x != len(alg.solucion) - 1:
-            k3.create_line(alg.solucion[x].estado.dameCoordenadax(),
                            alg.solucion[x].estado.dameCoordenaday(),
-                           alg.solucion[(x + 1) % len(alg.solucion)].estado.dameCoordenadax(),
-                           alg.solucion[(x + 1) % len(alg.solucion)].estado.dameCoordenaday(), fill="red")
+                           alg.solucion[x].estado.dameCoordenadax()+10,
+                           alg.solucion[x].estado.dameCoordenaday()+10, fill="red"
+        )
+    # Para evitar hacer una linea de la meta al inicio
+        if x != len(alg.solucion)-1:
+            k3.create_line(alg.solucion[x].estado.dameCoordenadax(),
+                      alg.solucion[x].estado.dameCoordenaday(),
+                      alg.solucion[(x+1)% len(alg.solucion)].estado.dameCoordenadax(),
+                      alg.solucion[(x+1)%len(alg.solucion)].estado.dameCoordenaday(),fill="red")
 
     '''
         #         4
@@ -600,7 +628,7 @@ if __name__ == '__main__':
     Nodo5 = NodoBusqueda(None, Nodo(300, 300, []))
     Nodo6 = NodoBusqueda(None, Nodo(900, 900, []))
     '''
-    k3 = Canvas(master, width=1300, height=1000)
+    k3 = Canvas(master, width=5000, height=5000)
     k3.pack()
     '''
     k3.create_rectangle(800, 800, 810, 810, fill="red")
@@ -618,8 +646,8 @@ if __name__ == '__main__':
     k3.create_line(500, 420, 300, 300, fill="red")
     '''
     # nums = [(999 , 999), (681 , 925), (301 , 605), (15 , 300)]
-    # nodos = [Nodo6, Nodo1, Nodo2, Nodo3, Nodo4, Nodo5]
-    # m1.suaviza(nodos, k3)
+    #nodos = [Nodo6, Nodo1, Nodo2, Nodo3, Nodo4, Nodo5]
+    #m1.suaviza(nodos, k3)
     m1.suaviza(alg.solucion, k3)
     # Nota, si se tiene el camino de la siguiente manera, falla dado que se dibuja el circulo de manera no correcta:
     #   o
@@ -631,16 +659,6 @@ if __name__ == '__main__':
     #   o
     #
     # NodoBusqueda.suaviza2(nums, k)
-    # TODO Hacer que en las lineas de los obstaculos generen todas las combinaciones, para que los puntos esten fuera de estos
+
 
     mainloop()
-
-    '''
-    obstaculos = [
-                  [(0, 190), (0, 200), (260, 190), (260, 200)],
-                  [(0, 0), (20, 0), (0, 200), (20, 200)],
-                  [(250, 0), (260, 0), (250, 190), (250, 200)],
-                  [(80, 50), (130, 50), (80, 130), (130, 130)],
-                  [(170, 50), (170, 130), (220, 50), (220, 130)]
-                  ]
-    '''
