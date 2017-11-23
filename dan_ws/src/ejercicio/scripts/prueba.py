@@ -6,6 +6,7 @@ import Tkinter as tk
 from random import randint
 from collections import deque
 import math
+from std_msgs.msg import String
 import Queue
 
 ROS_RATE = 10
@@ -269,7 +270,7 @@ class Mapa:  # Matriz de celdas
         k.pack()
         # k.create_oval(0, 499, 0, 499, fill="red")
         # k.create_oval(499, 499, 499, 499, fill="red")
-        genera = 500
+        genera = 60
         intentos = 0
         while genera > 0:
             intentos += 1
@@ -332,7 +333,7 @@ class Mapa:  # Matriz de celdas
                     x1 = self.nodos[y].coordx
                     y1 = self.nodos[y].coordy
                     # Distancias aceptables
-                    if abs(x0 - x1) < 100 and abs(y0 - y1) < 100:
+                    if abs(x0 - x1) < 600 and abs(y0 - y1) < 600:
                         bool = True
                         for z in self.listaLineas:
                             if Mapa.interseccion(x0, y0, x1, y1, z[0], z[1], z[2], z[3]):
@@ -519,7 +520,20 @@ class NodoBusqueda:
         return str(self.estado)
 
 
+def talker():
+    pub = rospy.Publisher('chatter', String, queue_size=10)
+    rospy.init_node('talker', anonymous=True)
+    rate = rospy.Rate(10)  # 10hz
+    while not rospy.is_shutdown():
+        hello_str = "Se transmiten mensajes %s" % rospy.get_time()
+        rospy.loginfo(hello_str)
+        pub.publish(hello_str)
+        rate.sleep()
+
+
 if __name__ == '__main__':
+
+
     obstaculos = [
                   [(0, 950), (0, 1000), (1300, 950), (1300, 1000)], #  CHECK
                   [(0, 0), (100, 0), (0, 1000), (100, 1000)], #  CHECK
@@ -644,3 +658,7 @@ if __name__ == '__main__':
                   [(170, 50), (170, 130), (220, 50), (220, 130)]
                   ]
     '''
+    try:
+        talker()
+    except rospy.ROSInterruptException:
+        pass

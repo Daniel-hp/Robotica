@@ -5,6 +5,7 @@ from Tkinter import *
 import Tkinter as tk
 from random import randint
 from collections import deque
+from std_msgs.msg import String
 import math
 import Queue
 
@@ -550,7 +551,26 @@ class NodoBusqueda:
     def __repr__(self):
         return str(self.estado)
 
+
+def talker():
+    pub = rospy.Publisher('chatter', String, queue_size=10)
+    rospy.init_node('talker', anonymous=True)
+    rate = rospy.Rate(10)  # 10hz
+    while not rospy.is_shutdown():
+        hello_str = "Se transmiten mensajes %s" % rospy.get_time()
+        rospy.loginfo(hello_str)
+        pub.publish(hello_str)
+        rate.sleep()
+
+
 if __name__ == '__main__':
+
+
+    try:
+        talker()
+    except rospy.ROSInterruptException:
+        pass
+
     m1 = Mapa(5000, 5000, [[(0, 0), (150, 200), (300, 110)], [(50, 50), (25, 25), (25, 50), (50, 25)]])
 
     m1.calcula()
@@ -574,16 +594,16 @@ if __name__ == '__main__':
     k3.pack()
     for x in range(len(alg.solucion)):
         k3.create_rectangle(alg.solucion[x].estado.dameCoordenadax(),
-                           alg.solucion[x].estado.dameCoordenaday(),
-                           alg.solucion[x].estado.dameCoordenadax()+10,
-                           alg.solucion[x].estado.dameCoordenaday()+10, fill="red"
-        )
+                            alg.solucion[x].estado.dameCoordenaday(),
+                            alg.solucion[x].estado.dameCoordenadax() + 10,
+                            alg.solucion[x].estado.dameCoordenaday() + 10, fill="red"
+                            )
     # Para evitar hacer una linea de la meta al inicio
-        if x != len(alg.solucion)-1:
+        if x != len(alg.solucion) - 1:
             k3.create_line(alg.solucion[x].estado.dameCoordenadax(),
-                      alg.solucion[x].estado.dameCoordenaday(),
-                      alg.solucion[(x+1)% len(alg.solucion)].estado.dameCoordenadax(),
-                      alg.solucion[(x+1)%len(alg.solucion)].estado.dameCoordenaday(),fill="red")
+                           alg.solucion[x].estado.dameCoordenaday(),
+                           alg.solucion[(x + 1) % len(alg.solucion)].estado.dameCoordenadax(),
+                           alg.solucion[(x + 1) % len(alg.solucion)].estado.dameCoordenaday(), fill="red")
 
     '''
         #         4
