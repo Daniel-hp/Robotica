@@ -313,17 +313,15 @@ class Mapa:  # Matriz de celdas
                     x1 = self.obstaculos[z][y][0]
                     y1 = self.obstaculos[z][y][1]
 
-                    if x0 != x1 and y0 != y1:
-                        ## Para dibujar los rectangulos
-                        k.create_rectangle(x0, y0, x1, y1, fill="red")
-                        seEncuentra = False
-                        for al in self.listaLineas:
-                            arr = [al[0], al[1], al[2], al[3]]
-                            if arr == [x1, y1, x0, y0]:
-                                seEncuentra = True
-                        if not seEncuentra:
-                            alfa = k.create_line(x0, y0, x1, y1, fill="red")
-                            self.listaLineas.append(k.coords(alfa))
+                    k.create_line(x0, y0, x1, y1, fill="red")
+                    seEncuentra = False
+                    for al in self.listaLineas:
+                        arr = [al[0], al[1], al[2], al[3]]
+                        if arr == [x1, y1, x0, y0]:
+                            seEncuentra = True
+                    if not seEncuentra:
+                        alfa = k.create_line(x0, y0, x1, y1, fill="red")
+                        self.listaLineas.append(k.coords(alfa))
         # Para dibujar la linea entre los puntos verificando estas no choquen y
         for x in range(len(self.nodos)):
             for y in range(len(self.nodos)):
@@ -657,8 +655,9 @@ if __name__ == '__main__':
                   [(80, 50), (130, 50), (80, 130), (130, 130)],
                   [(170, 50), (170, 130), (220, 50), (220, 130)]
                   ]
-    '''
+    #Para que el nodo se comunique
     try:
         talker()
     except rospy.ROSInterruptException:
         pass
+    '''
