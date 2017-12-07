@@ -270,7 +270,7 @@ class Mapa:  # Matriz de celdas
         k.pack()
         # k.create_oval(0, 499, 0, 499, fill="red")
         # k.create_oval(499, 499, 499, 499, fill="red")
-        genera = 60
+        genera = 500
         intentos = 0
         while genera > 0:
             intentos += 1
@@ -331,7 +331,7 @@ class Mapa:  # Matriz de celdas
                     x1 = self.nodos[y].coordx
                     y1 = self.nodos[y].coordy
                     # Distancias aceptables
-                    if abs(x0 - x1) < 600 and abs(y0 - y1) < 600:
+                    if abs(x0 - x1) < 150 and abs(y0 - y1) < 150:
                         bool = True
                         for z in self.listaLineas:
                             if Mapa.interseccion(x0, y0, x1, y1, z[0], z[1], z[2], z[3]):
