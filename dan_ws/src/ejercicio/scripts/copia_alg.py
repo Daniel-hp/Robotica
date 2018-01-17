@@ -1,3 +1,4 @@
+
 #!/usr/bin/env python
 from __future__ import division
 import rospy
@@ -12,14 +13,6 @@ import Queue
 ROS_RATE = 10
 
 
-###
-##ARCO
-# https://math.stackexchange.com/questions/390272/drawing-an-arc-between-two-points
-###
-# INTERSECCICON ENTRE ARCO Y LINEA
-# https://stackoverflow.com/questions/30006155/calculate-intersect-point-between-arc-and-line
-
-radang = []
 class Mapa:  # Matriz de celdas
     def __init__(self, longx, longy, obstaculos=[[]], nodos=[], m=1):
         self.obstaculos = obstaculos
@@ -87,19 +80,7 @@ class Mapa:  # Matriz de celdas
                 break
         return True if contador % 2 == 1 else False
 
-    #Metodo que calcula :
-    #       ( AB * BC)
-    # arccos(--------)
-    #       (||AB||| ||BC||)
-    @staticmethod
-    def aRobot(x1,y1,rx,ry,x2,y2):
-        # Primero se restan las coordenadas para obtener el vector
-        vectAR = (x1 - rx, y1 - rx)
-        vectRB = (rx - x2, ry - y2)
-        prodPto = vectAR[0] * vectRB[0] + vectAR[1] * vectRB[1]
-        dist1 = math.sqrt(math.pow(x1 - rx, 2) + math.pow(y1 - ry, 2))
-        dist2 = math.sqrt(math.pow(rx - x2, 2) + math.pow(ry - y2, 2))
-        return math.acos(prodPto / (dist1) * (dist2))
+
     # Para suavizar se crean lineas imaginarias que abarcan el espacio a donde se reduciran, si
     # no chocan se hace la curva, si chocan se vuelve a calcular, ahora a la mitad de la distancia elegida
     # x1y1 pto inicial de primer segmento
@@ -180,16 +161,6 @@ class Mapa:  # Matriz de celdas
             pto2y = ptos[x + 1].estado.dameCoordenaday()
             k.create_line((pto1x + pto2x) / 2, (pto2y + pto1y) / 2, pto2x, pto2y)
 
-    # El centro del circulo esta dado por (x0,y0)
-    @staticmethod
-    def calcula_arco(x0, y0, x1, y1, x2, y2):
-        # El radio del punto (x1,y1) a (x0,y0)
-        radio = math.sqrt((x1-x0)**2 + (y1-y0)**2)
-        x = x0-radio
-        y = y0-radio
-        angulo_inicial = 180 / (math.pi * math.atan2(y1-y0,x1-x0))
-        angulo_final = 180 / (math.pi * math.atan2(y2-y0,x2-x0))
-        return x, y, angulo_inicial, angulo_final
     @staticmethod
     def calculaCirculo(x1, y1, x2, y2, x3, y3, k):
         ptomd1 = ((x1 + x2) / 2, (y1 + y2) / 2)
@@ -280,21 +251,12 @@ class Mapa:  # Matriz de celdas
         crtopto = (x + r, y - r)
         print "r es : " + str(r)
         print "r2 es : " + str(r2)
-        # Calcular las coordenadas del nuevo punto
-        # Corregir coordenadas, deben ser la de los puntos medio
-        #https://math.stackexchange.com/questions/361412/finding-the-angle-between-three-points
-
-        radang.append(((r+r2)/2,Mapa.aRobot(x1,y1,x1+r,y1+r,x2,y2)))
         #k.create_line(x - r, y + r, x - r, y - r, fill="blue")
         #k.create_line(x - r, y + r, x + r, y + r, fill="blue")
         #k.create_line(x + r, y - r, x - r, y - r, fill="blue")
         #k.create_line(x + r, y - r, x + r, y + r, fill="blue")
         if beta < 0:
             beta = 360 + beta
-        #while beta < 0.0:
-         #   beta += math.pi * 2
-        #while alfa < 0.0:
-         #   alfa += math.pi * 2
         if alfa < 0:
             alfa = 360 + alfa
         return x - r, y + r, x + r, y - r, alfa, beta
@@ -308,7 +270,7 @@ class Mapa:  # Matriz de celdas
         k.pack()
         # k.create_oval(0, 499, 0, 499, fill="red")
         # k.create_oval(499, 499, 499, 499, fill="red")
-        genera = 5000
+        genera = 500
         intentos = 0
         while genera > 0:
             intentos += 1
@@ -369,7 +331,7 @@ class Mapa:  # Matriz de celdas
                     x1 = self.nodos[y].coordx
                     y1 = self.nodos[y].coordy
                     # Distancias aceptables
-                    if abs(x0 - x1) < 30 and abs(y0 - y1) < 30:
+                    if abs(x0 - x1) < 150 and abs(y0 - y1) < 150:
                         bool = True
                         for z in self.listaLineas:
                             if Mapa.interseccion(x0, y0, x1, y1, z[0], z[1], z[2], z[3]):
@@ -556,7 +518,19 @@ class NodoBusqueda:
         return str(self.estado)
 
 
+def talker():
+    pub = rospy.Publisher('chatter', String, queue_size=10)
+    rospy.init_node('talker', anonymous=True)
+    rate = rospy.Rate(10)  # 10hz
+    while not rospy.is_shutdown():
+        hello_str = "Se transmiten mensajes %s" % rospy.get_time()
+        rospy.loginfo(hello_str)
+        pub.publish(hello_str)
+        rate.sleep()
+
+
 if __name__ == '__main__':
+
 
     obstaculos = [
                   [(0, 950), (0, 1000), (1300, 950), (1300, 1000)], #  CHECK
@@ -572,14 +546,13 @@ if __name__ == '__main__':
     while not alg.resuleto and num > 0:
         alg.expandeNodoSiguiente()
         num -= 1
+        print num
     # Se dibujan las lineas del recorrido obtenido por A*
     # Se suavizan las lineas obtenidasd anteriormente
     # print alg.solucion[0]
     # print alg.solucion[-1]
     # master.after(ROS_RATE, exitros)
     # mainloop()
-    print "la solucion es : "
-    print alg.solucion
     master = Tk()
     k3 = Canvas(master, width=1300, height=1000)
     k3.pack()
@@ -596,22 +569,95 @@ if __name__ == '__main__':
                            alg.solucion[(x + 1) % len(alg.solucion)].estado.dameCoordenadax(),
                            alg.solucion[(x + 1) % len(alg.solucion)].estado.dameCoordenaday(), fill="red")
 
-    #mainloop()
-
+    '''
+        #         4
+        #         |
+        #    3____|____2
+        #         |
+        #         |
+        #         1
+    # Calcular los 4 segmentos para ver la perpendicular
+    # k.create_rectangle(250, 250, 250, 250, fill="red")  # 0
+    # k.create_rectangle(250, 300, 250, 300, fill="purple")  # 1
+    # k.create_rectangle(300, 250, 300, 250, fill="chocolate")  # 2
+    # k.create_rectangle(200, 250, 200, 250, fill ="gold")  # 3
+    # k.create_rectangle(250, 200, 250, 200, fill="cyan")  # 4
+    # k.create_line(250, 300, 300, 250)
+    # k.create_line(300,250, 200, 250)
+    # k.create_line(250,200, 250, 200)
+    # k.create_line(250,)
+    # k.create_line(251,444,499,499, fill ="red")
+    # k.create_line(0,250,251,444, fill="red")
+    # (1,3,4)
+    # angulos = m1.calculaCirculo(250, 200, 200, 250, 250, 300, k) # Esta mal
+    # print "Angulos (1,3,4) = " + str(angulos)
+    # (3,1,2)
+    # angulos = m1.calculaCirculo(200, 250, 250, 300, 300, 250, k) # Esta bien
+    # print "Angulos (3,1,2) = " + str(angulos)
+    # (1,2,4)
+    # angulos = m1.calculaCirculo(250, 300, 300, 250, 250, 200, k) # Esta bien
+    # (3,4,2)
+    # angulos = m1.calculaCirculo(200, 250, 250, 200, 300, 250, k) # Esta bien
+    # k.create_arc(angulos[0], angulos[1], angulos[2], angulos[3],
+    #             start=-angulos[5], extent=angulos[5]-angulos[4], style=tk.ARC, fill="green")
+    mainloop()
+    '''
 
     master = Tk()
-
-
+    '''
+    Nodo1 = NodoBusqueda(None, Nodo(800, 800, []))
+    Nodo2 = NodoBusqueda(None, Nodo(780, 750, []))
+    Nodo3 = NodoBusqueda(None, Nodo(700, 720, []))
+    Nodo4 = NodoBusqueda(None, Nodo(500, 420, []))
+    Nodo5 = NodoBusqueda(None, Nodo(300, 300, []))
+    Nodo6 = NodoBusqueda(None, Nodo(900, 900, []))
+    '''
     k3 = Canvas(master, width=1300, height=1000)
     k3.pack()
-    #k3.create_rectangle(100, 120, 110, 130, fill="red")
-    #k3.create_rectangle(200, 220, 210, 230, fill="red")
-    #angulos = Mapa.calcula_arco(50 , 50, 100, 120, 200, 220)
-    #k3.create_arc(100, 120, 200, 220,
-     #            start=angulos[2], extent=angulos[3], style=tk.ARC, fill="green")
-    #
-    #k3.create_line(100, 120, 200, 220, fill ="orange")
-
+    '''
+    k3.create_rectangle(800, 800, 810, 810, fill="red")
+    k3.create_rectangle(780, 750, 790, 760, fill="red")
+    k3.create_rectangle(700, 720, 710, 730, fill="red")
+    k3.create_rectangle(500, 420, 510, 430, fill="red")
+    # Nuevos Nodos
+    k3.create_rectangle(900,900,910,910, fill="red")
+    k3.create_rectangle(300,300,310,310, fill="red")
+    # Lineas
+    k3.create_line(900, 900, 800, 800, fill="red")
+    k3.create_line(800, 800, 780, 750, fill="red")
+    k3.create_line(780, 750, 700, 720, fill="red")
+    k3.create_line(700, 720, 500, 420, fill="red")
+    k3.create_line(500, 420, 300, 300, fill="red")
+    '''
+    # nums = [(999 , 999), (681 , 925), (301 , 605), (15 , 300)]
+    # nodos = [Nodo6, Nodo1, Nodo2, Nodo3, Nodo4, Nodo5]
+    # m1.suaviza(nodos, k3)
     m1.suaviza(alg.solucion, k3)
+    # Nota, si se tiene el camino de la siguiente manera, falla dado que se dibuja el circulo de manera no correcta:
+    #   o
+    #    \
+    #     \
+    #      o
+    #     /
+    #    /
+    #   o
+    #
+    # NodoBusqueda.suaviza2(nums, k)
+    # TODO Hacer que en las lineas de los obstaculos generen todas las combinaciones, para que los puntos esten fuera de estos
+
     mainloop()
 
+    '''
+    obstaculos = [
+                  [(0, 190), (0, 200), (260, 190), (260, 200)],
+                  [(0, 0), (20, 0), (0, 200), (20, 200)],
+                  [(250, 0), (260, 0), (250, 190), (250, 200)],
+                  [(80, 50), (130, 50), (80, 130), (130, 130)],
+                  [(170, 50), (170, 130), (220, 50), (220, 130)]
+                  ]
+    #Para que el nodo se comunique
+    try:
+        talker()
+    except rospy.ROSInterruptException:
+        pass
+    '''

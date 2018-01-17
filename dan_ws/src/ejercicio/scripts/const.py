@@ -1,12 +1,11 @@
-
 import numpy as np
 import random
 import math
 
 circle = 2.0 * math.pi
 SIZE = 120.0
-WIDTH = SIZE * 4.0
-HEIGHT = SIZE * 3.0
+WIDTH = 1300 #SIZE * 4.0
+HEIGHT = 1000 #SIZE * 3.0
 LENGTH = 300.0
 GAMMA = 0.01
 DISTANCE = 5.0
@@ -120,7 +119,7 @@ def getPoints(array):
             return None,array[0,1]
     return None,None
     
-def inRange(x1,x,x2):
+def inRange(x1,x,x2):#
     if x1 > x2:
         aux = x1
         x1 = x2
@@ -193,3 +192,4 @@ def inTriangle(p,a,b,c):
         return True
     else:
         return False
+

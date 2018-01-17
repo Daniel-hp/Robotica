@@ -1,13 +1,17 @@
+	
 
 import numpy as np
 import random
 import math
-
+import rospy
 import const
 
 class Robot:
     
     def __init__(self,x,y,length,num,direction):
+        # Punto de inicio
+        x = 120
+        y = 120
         self.p = np.array((x,y),dtype="float64")
         self.length = length
         self.num = num
@@ -32,3 +36,4 @@ class Robot:
         
     def rotate(self,total):
         self.direction = (self.direction + total) % const.circle
+

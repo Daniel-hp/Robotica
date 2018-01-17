@@ -1,4 +1,3 @@
-
 import numpy as np
 import random
 import math
@@ -71,6 +70,7 @@ class RobotEnvironment:
             alpha = self.rob.direction
             p = np.array((total,0),dtype="float64")
             p = const.rotate(p,alpha)
+            print "Me encuentro en la posicion: " + str(self.rob.p)
             self.rob.p = p + self.rob.p
             self.canvasDeleteRobot()
             self.canvasRobot()
@@ -108,7 +108,8 @@ class RobotEnvironment:
             if not const.inTriangle(self.rob.p,a,b,c):
                 if not const.intersectsTriangles(polygon,self.triangles):
                     if not const.insideTriangles(polygon,self.triangles):
-                        self.triangles.append(polygon)
+                        # Aqui indicar los obstaculos y agregarlos a la lista
+                        #self.triangles.append(polygon)
                         density = density - area
         
     def getDistance(self,x2,y2,n):
@@ -169,17 +170,41 @@ class RobotEnvironment:
             else:
                 pass
             alpha += angle 
-        
+
+        # Dibuja los triangulos
     def canvasTriangles(self):
+        obstaculos = [
+            [(0, 950), (0, 1000), (1300, 950), (1300, 1000)],  # CHECK
+            [(0, 0), (100, 0), (0, 1000), (100, 1000)],  # CHECK
+            [(1250, 0), (1300, 0), (1250, 950), (1250, 1000)],  # CHECK
+            [(400, 250), (650, 250), (400, 650), (650, 650)],
+            [(850, 250), (850, 650), (1100, 250), (1100, 650)]
+        ]
         i = 1
-        for _ in self.triangles:
+        #for _ in self.triangles:
+        for _ in range(10):
             arr = _
             t = "Triangle" + str(i)
             i += 1
+            '''
             self.publish(("polygon",arr[0,0], arr[0,1], arr[1,0], arr[1,1], arr[2,0], arr[2,1], "red", "black", "gray25",t))
-            x = (arr[0,0] + arr[1,0] + arr[2,0]) / 3.0
-            y = (arr[0,1] + arr[1,1] + arr[2,1]) / 3.0
-            self.publish(("text",x,y,t))
+            self.publish("")
+            '''
+            for z in range(len(obstaculos)):
+                for x in range(len(obstaculos[z])):
+                    for y in range(len(obstaculos[z])):
+                        x0 = obstaculos[z][x][0]
+                        y0 = obstaculos[z][x][1]
+                        x1 = obstaculos[z][y][0]
+                        y1 = obstaculos[z][y][1]
+                        #alfa = k.create_line(x0, y0, x1, y1, fill="red")
+                        self.publish(("line", x0, y0, x1, y1, "red", t))
+                        print "Woot " + str(x0) +" "+ str(y0)+ " "+ str(x1)+ " " + str(y1)
+            '''
+            x = (arr[0, 0] + arr[1, 0] + arr[2, 0]) / 3.0
+            y = (arr[0, 1] + arr[1, 1] + arr[2, 1]) / 3.0
+            self.publish(("text", x, y, t))
+            '''
             
     def canvasRobot(self):
         x = self.rob.p[0]

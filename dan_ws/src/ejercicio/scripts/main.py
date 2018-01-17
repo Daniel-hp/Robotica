@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-
+### GRID https://stackoverflow.com/questions/34006302/how-to-create-grid-on-tkinter-in-python
 import numpy as np
 import random
 import math
@@ -11,11 +11,20 @@ from std_msgs.msg import String
 import const
 from map import Map
 
+class Prueba:
+    def __init__(self, camino, rect = True):
+        self.camino = camino
+        self.prev = (0,0)
+        self.rect = rect
 t = "image"
 DISTANCE = const.DISTANCE
 ROTATE = const.ROTATE
+lista_instrucciones = [ "rotate 0.209439510239 Y", "move 1.0 Y" , "rotate -0.209439510239 Y"]
+camino = [(690, 500), (707, 352), (648, 231), (536, 229), (414, 213), (304, 310), (220, 179), (120, 120)]
+camino.reverse()
+rect = True
+pr = Prueba(camino)
 
-    
 def suprKey(event):
     PUB_VECTOR.publish("camposPotenciales")
     
@@ -30,15 +39,43 @@ def rightKey(event):
     
 def upKey(event):
     move("move",DISTANCE,"Y")
-    
+
+def calculoAngulo(x1, y1, x2, y2):
+    a =  math.atan2(y2-y1, x2-y1)
+    while a < 0.0:
+        a += math.pi * 2
+    return a
+
+
 def move(mode,c,override):
     s = const.toStringArray((mode,c,override))
-    print(s)
-    PUB_MOVE.publish(s)
+    #print "idx es " + str(idx)
+    print("El mensaje es : " + str(s))
+    #Se publica el mensaje tanto de movimiento como de rotacion
+    cadenas = ("move 1.0 Y", "move 1.0 Y", "move 1.0 Y", "move 1.0 Y")
+    rate = rospy.Rate(rospy.get_param('~hz', 10))
+    #PUB_MOVE.publish("move 1.0 Y") 
+# Pasar una lista con todas las instrucciones e irlas ejecutando cada que el usuario presiona una tecla, paso por paso
+    #lista_instrucciones.append(lista_instrucciones[0])
+    # Hacer que distancia sea proporcional para evitar cosas rars
+    ang = calculoAngulo(camino[0][0], camino[0][1], camino[-1][0], camino[-1][1])
+    dist = math.sqrt(math.pow(camino[0][0] - camino[1][0], 2) + math.pow(camino[0][1] - camino[1][1], 2))
+    camino.append(camino[0])
+    PUB_MOVE.publish(const.toStringArray(("rotate", ang, "Y")))
+    rospy.Rate(rospy.get_param('~hz', 10))
+    print "...." + str(camino[0])
+    print "El angulo es de : " + str(ang)
+    camino.pop(0)
+    PUB_MOVE.publish(const.toStringArray(("move",  dist, "Y")))
+    #if pr.rect:
+        #angulo =
+    #PUB_MOVE.publish(s)
+	 
     
 def tkinterListener(data):
     data = data.data
     array = np.array(data.split(" "))
+   # print "El array es : " + str(array)
     if array[0] == "delete":
         t = array[1]
         w.delete(t)
@@ -77,6 +114,7 @@ def tkinterListener(data):
         y = array[2]
         t = array[3]
         w.create_text(x,y,text=t)
+
     
 def answerMove(data):
     data = data.data
@@ -118,7 +156,7 @@ if __name__ == "__main__":
     y = const.HEIGHT
     print(str(x) + ", " + str(y))
     master = Tk()
-    w = Canvas(master, width=x*2, height=y)
+    w = Canvas(master, width=x, height=y)
     m = Map(int(x),int(y))
     w.create_image(x, 0, image = m.image, anchor=NW,tag = t)
     w.bind("<Left>", leftKey)

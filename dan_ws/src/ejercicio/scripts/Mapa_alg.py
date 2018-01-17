@@ -1,25 +1,11 @@
-#!/usr/bin/env python
 from __future__ import division
 import rospy
 from Tkinter import *
 import Tkinter as tk
 from random import randint
-from collections import deque
 import math
 from std_msgs.msg import String
-import Queue
 
-ROS_RATE = 10
-
-
-###
-##ARCO
-# https://math.stackexchange.com/questions/390272/drawing-an-arc-between-two-points
-###
-# INTERSECCICON ENTRE ARCO Y LINEA
-# https://stackoverflow.com/questions/30006155/calculate-intersect-point-between-arc-and-line
-
-radang = []
 class Mapa:  # Matriz de celdas
     def __init__(self, longx, longy, obstaculos=[[]], nodos=[], m=1):
         self.obstaculos = obstaculos
@@ -87,19 +73,6 @@ class Mapa:  # Matriz de celdas
                 break
         return True if contador % 2 == 1 else False
 
-    #Metodo que calcula :
-    #       ( AB * BC)
-    # arccos(--------)
-    #       (||AB||| ||BC||)
-    @staticmethod
-    def aRobot(x1,y1,rx,ry,x2,y2):
-        # Primero se restan las coordenadas para obtener el vector
-        vectAR = (x1 - rx, y1 - rx)
-        vectRB = (rx - x2, ry - y2)
-        prodPto = vectAR[0] * vectRB[0] + vectAR[1] * vectRB[1]
-        dist1 = math.sqrt(math.pow(x1 - rx, 2) + math.pow(y1 - ry, 2))
-        dist2 = math.sqrt(math.pow(rx - x2, 2) + math.pow(ry - y2, 2))
-        return math.acos(prodPto / (dist1) * (dist2))
     # Para suavizar se crean lineas imaginarias que abarcan el espacio a donde se reduciran, si
     # no chocan se hace la curva, si chocan se vuelve a calcular, ahora a la mitad de la distancia elegida
     # x1y1 pto inicial de primer segmento
@@ -143,6 +116,8 @@ class Mapa:  # Matriz de celdas
         x = 0
         # Se suaviza la linea
         nvosptos = []
+
+        coordenadas = []
         print long
         print "Los puntos son :  [" + str(ptos) + "]"
         if long <= 2:
@@ -151,6 +126,7 @@ class Mapa:  # Matriz de celdas
             pto2x = ptos[x + 1].estado.dameCoordenadax()
             pto2y = ptos[x + 1].estado.dameCoordenaday()
             k.create_line(pto1x, pto1y, pto2x, pto2y)
+            return (True, [pto1x, pto1y, pto2x, pto2y])
         else:
             # Se dibuja la primer linea
             pto1x = ptos[x].estado.dameCoordenadax()
@@ -158,6 +134,7 @@ class Mapa:  # Matriz de celdas
             pto2x = ptos[x + 1].estado.dameCoordenadax()
             pto2y = ptos[x + 1].estado.dameCoordenaday()
             k.create_line(pto1x, pto1y, (pto1x + pto2x) / 2, (pto1y + pto2y) / 2)
+            tempi = [pto1x, pto1y, (pto1x + pto2x) / 2, (pto1y + pto2y) / 2]
             while x + 2 < long:
                 pto1x = ptos[x].estado.dameCoordenadax()
                 pto1y = ptos[x].estado.dameCoordenaday()
@@ -171,6 +148,7 @@ class Mapa:  # Matriz de celdas
                 self.caminoS = self.caminoS + [(angulos[0], angulos[1], angulos[2], angulos[3], angulos[4], angulos[5])]
                 k.create_arc(angulos[0], angulos[1], angulos[2], angulos[3],
                              start=-angulos[5], extent=angulos[5] - angulos[4], style=tk.ARC, fill="green")
+                coordenadas.append(angulos)
                 # start=-angulos[5], extent=angulos[5] - angulos[4]
                 x += 1
             # Los sobrantes se dejan con la linea recta
@@ -179,26 +157,17 @@ class Mapa:  # Matriz de celdas
             pto2x = ptos[x + 1].estado.dameCoordenadax()
             pto2y = ptos[x + 1].estado.dameCoordenaday()
             k.create_line((pto1x + pto2x) / 2, (pto2y + pto1y) / 2, pto2x, pto2y)
+            return (False, tempi, coordenadas, [(pto1x + pto2x) / 2, (pto2y + pto1y) / 2, pto2x, pto2y])
 
-    # El centro del circulo esta dado por (x0,y0)
-    @staticmethod
-    def calcula_arco(x0, y0, x1, y1, x2, y2):
-        # El radio del punto (x1,y1) a (x0,y0)
-        radio = math.sqrt((x1-x0)**2 + (y1-y0)**2)
-        x = x0-radio
-        y = y0-radio
-        angulo_inicial = 180 / (math.pi * math.atan2(y1-y0,x1-x0))
-        angulo_final = 180 / (math.pi * math.atan2(y2-y0,x2-x0))
-        return x, y, angulo_inicial, angulo_final
     @staticmethod
     def calculaCirculo(x1, y1, x2, y2, x3, y3, k):
         ptomd1 = ((x1 + x2) / 2, (y1 + y2) / 2)
         ptomd2 = ((x2 + x3) / 2, (y2 + y3) / 2)
-        #k.create_rectangle(x1, y1, x1 + 10, y1 + 10, fill="green")
-        #k.create_rectangle(x2, y2, x2 + 10, y2 + 10, fill="green")
-        #k.create_rectangle(x3, y3, x3 + 10, y3 + 10, fill="green")
-        #k.create_rectangle(ptomd1[0], ptomd1[1], ptomd1[0] + 10, ptomd1[1] + 10)
-        #k.create_rectangle(ptomd2[0], ptomd2[1], ptomd2[0] + 10, ptomd2[1] + 10)
+        # k.create_rectangle(x1, y1, x1 + 10, y1 + 10, fill="green")
+        # k.create_rectangle(x2, y2, x2 + 10, y2 + 10, fill="green")
+        # k.create_rectangle(x3, y3, x3 + 10, y3 + 10, fill="green")
+        # k.create_rectangle(ptomd1[0], ptomd1[1], ptomd1[0] + 10, ptomd1[1] + 10)
+        # k.create_rectangle(ptomd2[0], ptomd2[1], ptomd2[0] + 10, ptomd2[1] + 10)
         # Las lineas comentadas corresponden a los circulos formados
         # previamente
         '''
@@ -214,13 +183,14 @@ class Mapa:  # Matriz de celdas
             pend2 = 0
         else:
             pend2 = -(x2 - x3) / (y2 - y3)
+
             # print pend1
             # print pend2
             # y = mx + b  => (y,mx,b)
         ec1 = (1, pend1, -pend1 * ptomd1[0] + ptomd1[1])
         ec2 = (1, pend2, -pend2 * ptomd2[0] + ptomd2[1])
         '''
-        #Se realizan los nuevos calculos
+        # Se realizan los nuevos calculos
         if y2 - y1 == 0:
             pend1 = 0
         else:
@@ -239,10 +209,10 @@ class Mapa:  # Matriz de celdas
         print "El punto mas cercano es : " + str(ptomcercano)
 
         # Ax + By + C = 0  ==> (A,B,C)
-        #primec = (y2 - y1, -(x2 - x1), (y2 - y1) * x1 - y1 * (x2 - x1))
-        #segundaec = (y3 - y2, -(x3 - x2), (y3 - y2) * x3 - y2 * (x3 - x2))
+        # primec = (y2 - y1, -(x2 - x1), (y2 - y1) * x1 - y1 * (x2 - x1))
+        # segundaec = (y3 - y2, -(x3 - x2), (y3 - y2) * x3 - y2 * (x3 - x2))
 
-        primec = (y2 - y1, -x2 + x1 , (y2 - y1) * x1 - y1 * (x2 - x1))
+        primec = (y2 - y1, -x2 + x1, (y2 - y1) * x1 - y1 * (x2 - x1))
         segundaec = (y3 - y2, -x3 + x2, (y3 - y2) * x1 - y1 * (x3 - x2))
 
         raiz1 = math.sqrt(math.pow(primec[0], 2) + math.pow(primec[1], 2))
@@ -262,7 +232,7 @@ class Mapa:  # Matriz de celdas
         x = (ec2[2] - ec1[2]) / -(ec2[1] - ec1[1])
         y = x * ec1[1] + ec1[2]
         # print "Se intersectan en : " + str(x) + str(y)
-        #k.create_rectangle(x,y,x+10,y+10, fill="gold")
+        # k.create_rectangle(x,y,x+10,y+10, fill="gold")
         # (x,y) representa el centro del circulo
         r = math.sqrt(math.pow(x - ptomcercano[0], 2) + math.pow(y - ptomcercano[1], 2))
         r2 = math.sqrt(math.pow(x - ptomenoscercano[0], 2) + math.pow(y - ptomenoscercano[1], 2))
@@ -280,21 +250,12 @@ class Mapa:  # Matriz de celdas
         crtopto = (x + r, y - r)
         print "r es : " + str(r)
         print "r2 es : " + str(r2)
-        # Calcular las coordenadas del nuevo punto
-        # Corregir coordenadas, deben ser la de los puntos medio
-        #https://math.stackexchange.com/questions/361412/finding-the-angle-between-three-points
-
-        radang.append(((r+r2)/2,Mapa.aRobot(x1,y1,x1+r,y1+r,x2,y2)))
-        #k.create_line(x - r, y + r, x - r, y - r, fill="blue")
-        #k.create_line(x - r, y + r, x + r, y + r, fill="blue")
-        #k.create_line(x + r, y - r, x - r, y - r, fill="blue")
-        #k.create_line(x + r, y - r, x + r, y + r, fill="blue")
+        # k.create_line(x - r, y + r, x - r, y - r, fill="blue")
+        # k.create_line(x - r, y + r, x + r, y + r, fill="blue")
+        # k.create_line(x + r, y - r, x - r, y - r, fill="blue")
+        # k.create_line(x + r, y - r, x + r, y + r, fill="blue")
         if beta < 0:
             beta = 360 + beta
-        #while beta < 0.0:
-         #   beta += math.pi * 2
-        #while alfa < 0.0:
-         #   alfa += math.pi * 2
         if alfa < 0:
             alfa = 360 + alfa
         return x - r, y + r, x + r, y - r, alfa, beta
@@ -308,7 +269,7 @@ class Mapa:  # Matriz de celdas
         k.pack()
         # k.create_oval(0, 499, 0, 499, fill="red")
         # k.create_oval(499, 499, 499, 499, fill="red")
-        genera = 5000
+        genera = 50
         intentos = 0
         while genera > 0:
             intentos += 1
@@ -369,7 +330,7 @@ class Mapa:  # Matriz de celdas
                     x1 = self.nodos[y].coordx
                     y1 = self.nodos[y].coordy
                     # Distancias aceptables
-                    if abs(x0 - x1) < 30 and abs(y0 - y1) < 30:
+                    if abs(x0 - x1) < 500 and abs(y0 - y1) < 500:
                         bool = True
                         for z in self.listaLineas:
                             if Mapa.interseccion(x0, y0, x1, y1, z[0], z[1], z[2], z[3]):
@@ -385,233 +346,4 @@ class Mapa:  # Matriz de celdas
 
         self.master.after(ROS_RATE, exitros)
 
-        #mainloop()
-
-
-class Nodo:  # Representa a un punto dentro del mapa
-    def __init__(self, coordx, coordy, listaAdyacentes=[]):
-        self.coordx = coordx
-        self.coordy = coordy
-        self.listaAdyacentes = listaAdyacentes
-        self.hn = 0
-        self.gn = 0
-        self.visitado = False
-        self.sol = False
-        self.listaCerrada = False
-        self.listaAbierta = False
-
-    def dameVisitado(self):
-        return self.visitado
-
-    def damefn(self):
-        return self.gn + self.hn()
-
-    def damehn(self):
-        return self.hn
-
-    def agregaAdyacente(self, nodo):
-        self.listaAdyacentes.append(nodo)
-
-    def dameAdyacentes(self):
-        return self.listaAdyacentes
-
-    def dameCoordenadax(self):
-        return self.coordx
-
-    def dameCoordenaday(self):
-        return self.coordy
-
-    def __key(self):
-        return (self.coordx, self.coordy)
-
-    def __eq__(self, other):
-        return self.__key() == other.__key()
-
-    def __str__(self):
-        return "(" + str(self.coordx) + " , " + str(self.coordy) + ")"
-
-    def __repr__(self):
-        return "(" + str(self.coordx) + " , " + str(self.coordy) + ")"
-
-    def __hash__(self):
-        return hash(self.__key())
-
-
-class AEstrella:
-    # Devolver False en caso de que no se haya encontrado solucion
-    def __init__(self, inicio, meta, nodos=[]):
-        self.inicio = inicio
-        self.iinicioNB = NodoBusqueda(None, inicio)
-        self.meta = meta
-        self.metaNB = NodoBusqueda(None, meta)
-        self.nodos = nodos
-        self.listaAbierta = Queue.PriorityQueue()
-        self.listaCerrada = {}
-        self.solucion = []
-        self.resuleto = False
-        inicio.hn = AEstrella.calculaHeuristica(inicio, meta)
-        self.nodoActual = None
-        self.nodoPrevio = NodoBusqueda(None, inicio)
-        self.listaAbierta.put(self.nodoPrevio)
-
-    @staticmethod
-    def calculaHeuristica(n1, n2):
-
-        return math.hypot(n2.dameCoordenadax() - n1.dameCoordenadax(),
-                          n2.dameCoordenaday() - n1.dameCoordenaday())
-
-    def expandeNodoSiguiente(self):
-        if self.resuleto:
-            return
-        self.nodoActual = self.listaAbierta.get()
-        self.listaCerrada[self.nodoPrevio.estado] = self.nodoPrevio.estado
-        self.nodoPrevio.estado.listaCerrada = True
-        if self.nodoActual.estado == self.meta:
-            self.resuleto = True
-            tmp = self.nodoActual
-            while tmp.estado != self.inicio:
-                self.solucion.append(tmp)
-                tmp.estado.sol = True
-                tmp = tmp.padre
-            self.solucion.append(tmp)
-        else:
-            suc = self.nodoActual.getSucesores()
-            for sucesor in suc:
-                if not sucesor.estado.listaCerrada:
-                    if not sucesor.estado.listaAbierta:
-                        sucesor.estado.hn = sucesor.calculaDistancia(self.meta) + NodoBusqueda.calculaAngulo(sucesor,
-                                                                                                             self.metaNB)
-                        sucesor.estado.gn = sucesor.gn + sucesor.calculaDistancia(
-                            sucesor.padre.estado)  # Se agrega el costo dellegar al nodo
-                        self.listaAbierta.put(sucesor)
-                        sucesor.estado.listaCerrada = True
-                else:
-                    sucesor.estado.gn = sucesor.gn
-                    sucesor.estado.padre = sucesor.padre.estado
-        self.nodoPrevio = self.nodoActual
-
-
-class NodoBusqueda:
-    def __init__(self, padre, estado, m=1):
-        self.padre = padre
-        self.estado = estado
-        self.gn = 0
-        self.m = m
-
-    # Verificar cuando calcular lo del angulo
-    def setGn(self, gn):
-        self.gn = gn
-
-    def calculahn(self):
-        return 0
-
-    def dameFn(self):
-        return self.estado.damehn() + self.gn
-
-    def calculaDistancia(self, n1):
-        return math.hypot(self.estado.dameCoordenadax() - n1.dameCoordenadax(),
-                          self.estado.dameCoordenaday() - n1.dameCoordenaday())
-
-    # Dado un punto n, calcula el angulo que se forma al intentar llegar a este, dado que hay
-    @staticmethod
-    def calculaAngulo(n1, n2):
-        # Ver que acos siempre se ejecute
-        # Si el nodo es el inicio  no hay angulo que calcular
-        if n1.padre is None:
-            return 1
-        a = n1.padre.estado
-        b = n1.estado
-        c = n2.estado
-        if a == c:  # El nodo intenta calcular el angulo de  a --- b --- a
-            return 360
-        ab = math.sqrt(math.pow(a.dameCoordenadax() - b.dameCoordenadax(), 2)
-                       + math.pow(a.dameCoordenaday() - b.dameCoordenaday(), 2))
-        bc = math.sqrt(math.pow(c.dameCoordenadax() - b.dameCoordenadax(), 2)
-                       + math.pow(c.dameCoordenaday() - b.dameCoordenaday(), 2))
-        ca = math.sqrt(math.pow(a.dameCoordenadax() - c.dameCoordenadax(), 2)
-                       + math.pow(a.dameCoordenaday() - c.dameCoordenaday(), 2))
-
-        numerador = math.pow(ab, 2) + math.pow(ca, 2) - math.pow(bc, 2)
-        denominador = 2 * ab * ca
-        if denominador == 0:
-            return 0
-        resultado = math.acos(numerador / denominador)
-        return math.degrees(resultado)
-
-    def getSucesores(self):
-        sucesores = deque()
-        for x in self.estado.dameAdyacentes():
-            nodoSucesor = NodoBusqueda(self, x)
-            dem = pow(NodoBusqueda.calculaAngulo(self, nodoSucesor), 2)
-            if dem != 0:
-                nodoSucesor.gn = self.gn + self.calculaDistancia(x) * (1 / dem) * self.m
-            nodoSucesor.gn = 100000
-            sucesores.append(nodoSucesor)
-        return sucesores
-
-    def __cmp__(self, nb1):
-        return self.dameFn() - nb1.dameFn()
-
-    def __repr__(self):
-        return str(self.estado)
-
-
-if __name__ == '__main__':
-
-    obstaculos = [
-                  [(0, 950), (0, 1000), (1300, 950), (1300, 1000)], #  CHECK
-                  [(0, 0), (100, 0), (0, 1000), (100, 1000)], #  CHECK
-                  [(1250, 0), (1300, 0), (1250, 950), (1250, 1000)], #CHECK
-                  [(400, 250), (650, 250), (400, 650), (650, 650)],
-                  [(850, 250), (850, 650), (1100, 250), (1100, 650)]
-                  ]
-    m1 = Mapa(1300, 1000, obstaculos)
-    m1.calcula()
-    alg = AEstrella(m1.nodos[0], m1.nodos[1], m1.nodos)
-    num = 200
-    while not alg.resuleto and num > 0:
-        alg.expandeNodoSiguiente()
-        num -= 1
-    # Se dibujan las lineas del recorrido obtenido por A*
-    # Se suavizan las lineas obtenidasd anteriormente
-    # print alg.solucion[0]
-    # print alg.solucion[-1]
-    # master.after(ROS_RATE, exitros)
-    # mainloop()
-    print "la solucion es : "
-    print alg.solucion
-    master = Tk()
-    k3 = Canvas(master, width=1300, height=1000)
-    k3.pack()
-    for x in range(len(alg.solucion)):
-        k3.create_rectangle(alg.solucion[x].estado.dameCoordenadax(),
-                            alg.solucion[x].estado.dameCoordenaday(),
-                            alg.solucion[x].estado.dameCoordenadax() + 10,
-                            alg.solucion[x].estado.dameCoordenaday() + 10, fill="red"
-                            )
-        # Para evitar hacer una linea de la meta al inicio
-        if x != len(alg.solucion) - 1:
-            k3.create_line(alg.solucion[x].estado.dameCoordenadax(),
-                           alg.solucion[x].estado.dameCoordenaday(),
-                           alg.solucion[(x + 1) % len(alg.solucion)].estado.dameCoordenadax(),
-                           alg.solucion[(x + 1) % len(alg.solucion)].estado.dameCoordenaday(), fill="red")
-
-    #mainloop()
-
-
-    master = Tk()
-
-
-    k3 = Canvas(master, width=1300, height=1000)
-    k3.pack()
-    #k3.create_rectangle(100, 120, 110, 130, fill="red")
-    #k3.create_rectangle(200, 220, 210, 230, fill="red")
-    #angulos = Mapa.calcula_arco(50 , 50, 100, 120, 200, 220)
-    #k3.create_arc(100, 120, 200, 220,
-     #            start=angulos[2], extent=angulos[3], style=tk.ARC, fill="green")
-    #
-    #k3.create_line(100, 120, 200, 220, fill ="orange")
-
-    m1.suaviza(alg.solucion, k3)
-    mainloop()
-
+        # mainloop()

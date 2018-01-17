@@ -19,9 +19,14 @@ class Controller:
         self.pub = rospy.Publisher("/mobile_base/commands/velocity", Twist, queue_size = 20)
         print("ready")
     
+    # Aqui el robot se mueve, ver donde se llama para llenarlo
     def move(self,alpha,betha):
         print(str(alpha) + ", " + str(betha))
-        self.pub.publish(Twist(Vector3(alpha,0.0,0.0),Vector3(0.0,0.0,betha)))
+	    #alpha = 0.05
+	    #betha = 0.0
+        # El primer parametro es la velocidad lineal, y la segunda es la velocidad angular
+        self.pub.publish(Twist(Vector3(0.0,0.0,alpha),Vector3(0.0,0.0,betha)))
+
         
     def bumper(self):
         self.move(-ALPHA,0)
@@ -30,7 +35,7 @@ class Controller:
 def move(data):
     data = data.data
     array = np.array(data.split(" "))
-    c.move(float(array[0]),float(array[1]))
+    c.move(float(array[0]), float(array[1]))
     
 def bumper(data):
     if data.bumper != 0:

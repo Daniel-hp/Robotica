@@ -1,9 +1,8 @@
-
 import numpy as np
 import random
 import math
 from Tkinter import *
-
+import rospy
 import const
 from robot import Robot
 
@@ -14,10 +13,13 @@ class Map:
         self.height = y
         self.rob = Robot.getRobot(x/2,y/2)
         self.image = PhotoImage(width=x,height=y)
+
+        #elf.image.put('R0lGODdhEAAQAIcAA neeAAAAAEBAQICAgMDAwQEBAUFBQYGBgcHBwgICAkJCQoKCgsLCwwMDA0NDQ4ODg8PDxAQEBERERISEhMTExQUFBUVFRYWFhcXFxgYGBkZGRoaGhsbGxwcHB0dHR4eHh8fHyAgICEh')
         color = [255 for i in range(0,3)]
+        #self.image.put('#%02x%02x%02x' % tuple(color), (0, 0))
         for i in xrange(x):
             for j in xrange(y):
-                self.image.put('#%02x%02x%02x' % tuple(color),(i,j))
+                self.image.put('#%02x%02x%02x' % tuple(color),(0,0))
         
     def move(self,total):
         self.rob.move(total)

@@ -28,3 +28,11 @@ if __name__ == '__main__':
         talker()
     except rospy.ROSInterruptException:
         pass
+
+
+        ###
+        ##ARCO
+        # https://math.stackexchange.com/questions/390272/drawing-an-arc-between-two-points
+        ###
+        # INTERSECCICON ENTRE ARCO Y LINEA
+        # https://stackoverflow.com/questions/30006155/calculate-intersect-point-between-arc-and-line
