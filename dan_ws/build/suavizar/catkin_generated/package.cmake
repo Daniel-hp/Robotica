@@ -10,4 +10,7 @@ set(suavizar_EXEC_DEPENDS "kobuki_msgs" "nodelet" "roscpp" "std_msgs" "yocs_cont
 set(suavizar_RUN_DEPENDS "kobuki_msgs" "nodelet" "roscpp" "std_msgs" "yocs_controllers")
 set(suavizar_TEST_DEPENDS )
 set(suavizar_DOC_DEPENDS )
+set(suavizar_URL_WEBSITE "")
+set(suavizar_URL_BUGTRACKER "")
+set(suavizar_URL_REPOSITORY "")
 set(suavizar_DEPRECATED "")

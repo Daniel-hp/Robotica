@@ -1,2 +1,2 @@
-beginner_tutorials:ejercicio:kobuki_controller_tutorial:kobuki_noisy_controller_tutorial:prueba:suavizar
+beginner_tutorials:ejercicio:kobuki_controller_tutorial:kobuki_noisy_controller_tutorial:prueba:suavizar:turtlesim_cleaner
 -DCATKIN_DEVEL_PREFIX=/home/dan-hp/Robotica/dan_ws/devel -DCMAKE_INSTALL_PREFIX=/home/dan-hp/Robotica/dan_ws/install -G Unix Makefiles

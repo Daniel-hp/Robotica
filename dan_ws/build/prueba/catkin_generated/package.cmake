@@ -10,4 +10,7 @@ set(prueba_EXEC_DEPENDS "kobuki_msgs" "nodelet" "roscpp" "std_msgs" "yocs_contro
 set(prueba_RUN_DEPENDS "kobuki_msgs" "nodelet" "roscpp" "std_msgs" "yocs_controllers")
 set(prueba_TEST_DEPENDS )
 set(prueba_DOC_DEPENDS )
+set(prueba_URL_WEBSITE "")
+set(prueba_URL_BUGTRACKER "")
+set(prueba_URL_REPOSITORY "")
 set(prueba_DEPRECATED "")

@@ -88,18 +88,32 @@ class Mapa:  # Matriz de celdas
         return True if contador % 2 == 1 else False
 
     #Metodo que calcula :
-    #       ( AB * BC)
-    # arccos(--------)
-    #       (||AB||| ||BC||)
+    #
+    #        ( ||AC||^2 - ||BC||^2 - ||AB||^2 )
+    #C = acos(---------------------------------)
+    #        (-2 ||BC|| * ||AB||               )
+    #
     @staticmethod
     def aRobot(x1,y1,rx,ry,x2,y2):
         # Primero se restan las coordenadas para obtener el vector
+        lonAC = math.sqrt(math.pow(x1 - x2, 2) + math.pow(y1 - y2, 2))
+        lonBC = math.sqrt(math.pow(x2 - rx, 2) + math.pow(y2 - ry, 2))
+        lonAB = math.sqrt(math.pow(x1 - rx, 2) + math.pow(y1 - ry, 2))
+        numerador = math.pow(lonAC,2) - math.pow(lonBC,2) - math.pow(lonAB,2)
+        denominador = -2 * lonBC * lonAB
+
+        '''
         vectAR = (x1 - rx, y1 - rx)
         vectRB = (rx - x2, ry - y2)
         prodPto = vectAR[0] * vectRB[0] + vectAR[1] * vectRB[1]
         dist1 = math.sqrt(math.pow(x1 - rx, 2) + math.pow(y1 - ry, 2))
         dist2 = math.sqrt(math.pow(rx - x2, 2) + math.pow(ry - y2, 2))
-        return math.acos(prodPto / (dist1) * (dist2))
+        print prodPto
+        print dist1
+        print dist2
+        '''
+        return math.acos(numerador / denominador)
+        #return math.acos(prodPto / ((dist1) * (dist2)))
     # Para suavizar se crean lineas imaginarias que abarcan el espacio a donde se reduciran, si
     # no chocan se hace la curva, si chocan se vuelve a calcular, ahora a la mitad de la distancia elegida
     # x1y1 pto inicial de primer segmento
@@ -283,8 +297,9 @@ class Mapa:  # Matriz de celdas
         # Calcular las coordenadas del nuevo punto
         # Corregir coordenadas, deben ser la de los puntos medio
         #https://math.stackexchange.com/questions/361412/finding-the-angle-between-three-points
+        #r = (r + r2) / 2
 
-        radang.append(((r+r2)/2,Mapa.aRobot(x1,y1,x1+r,y1+r,x2,y2)))
+        radang.append((r, Mapa.aRobot(x1, y1,   (ptomd1[0]+ptomd2[0])/2 + r, (ptomd1[1]+ptomd2[1])/2 + r, x2, y2)))
         #k.create_line(x - r, y + r, x - r, y - r, fill="blue")
         #k.create_line(x - r, y + r, x + r, y + r, fill="blue")
         #k.create_line(x + r, y - r, x - r, y - r, fill="blue")
@@ -308,7 +323,7 @@ class Mapa:  # Matriz de celdas
         k.pack()
         # k.create_oval(0, 499, 0, 499, fill="red")
         # k.create_oval(499, 499, 499, 499, fill="red")
-        genera = 5000
+        genera = 500
         intentos = 0
         while genera > 0:
             intentos += 1
@@ -369,7 +384,7 @@ class Mapa:  # Matriz de celdas
                     x1 = self.nodos[y].coordx
                     y1 = self.nodos[y].coordy
                     # Distancias aceptables
-                    if abs(x0 - x1) < 30 and abs(y0 - y1) < 30:
+                    if abs(x0 - x1) < 150 and abs(y0 - y1) < 150:
                         bool = True
                         for z in self.listaLineas:
                             if Mapa.interseccion(x0, y0, x1, y1, z[0], z[1], z[2], z[3]):
@@ -614,4 +629,6 @@ if __name__ == '__main__':
 
     m1.suaviza(alg.solucion, k3)
     mainloop()
-
+    print radang
+## Cosas de ROS
+# https://www.ethz.ch/content/dam/ethz/special-interest/mavt/robotics-n-intelligent-systems/rsl-dam/ROS2017/lecture1.pdf

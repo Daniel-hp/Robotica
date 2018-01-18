@@ -19,7 +19,7 @@ DISTANCE = const.DISTANCE
 ROTATE = const.ROTATE
 
 class Environment:
-    
+
     def __init__(self,width,height):
         self.PUB_VECTOR = rospy.Publisher("vector", String, queue_size=20)
         self.PUB_MOVE_MAP = rospy.Publisher("moveMap", String, queue_size=20)
@@ -35,32 +35,32 @@ class Environment:
         self.range = const.RANGE
         self.isMin = True
         print("ready")
-    
+
     def rotate(self,total):
         self.rob.rotate(total)
         self.sendVector()
-    
+
     def move(self,total):
         self.rob.move(total)
         self.sendVector()
-    
+
     def resetInterface(self):
         self.rob.resetInterface()
-        
+
     def sendVector(self):
         s = const.toStringArray(self.rob.getDistances())
         self.PUB_VECTOR.publish(s)
-        
+
     def requestMove(self,t):
         s = const.toStringArray(t)
         self.PUB_MOVE_MAP.publish(s)
-        
+
     def getFrontDistance(self):
         return self.rob.getFrontDistance()
-        
+
     def getRearDistance(self):
         return self.rob.getRearDistance()
-        
+
     def camposPotenciales(self):
         d = self.rob.getDistances()
         angle = (const.circle) / self.rob.rob.num
@@ -92,7 +92,7 @@ class Environment:
                 aux = 0.9
             alpha = math.acos(aux)
         return l,alpha
-        
+
 def campos(data):
     rate = rospy.Rate(rospy.get_param('~hz', 10))
     l,r = e.camposPotenciales()
@@ -106,16 +106,18 @@ def campos(data):
         e.isMin = False
     else:
         e.isMin = True
-    
+
 def reset(data):
     e.resetInterface()
-    
+
 def moveMain(data):
     data = data.data
     array = np.array(data.split(" "))
     mode = array[0]
     total = float(array[1])
     override = array[2] == "Y"
+    print "La data es : "
+    print data
     print(array)
     if not e.canMove or override:
         e.moveXrotate = mode == "move"
@@ -126,7 +128,7 @@ def moveMain(data):
         e.PUB_MOVE.publish("move")
     else:
         e.buffer.append([total,mode])
-    
+
 def move(data):
     if e.canMove:
         rate = rospy.Rate(rospy.get_param('~hz', 10))
@@ -171,7 +173,7 @@ def move(data):
             e.PUB_MOVE.publish("move")
         elif not e.isMin:
             PUB_VECTOR.publish("vector")
-    
+
 def velocity(data):
     alpha = data.linear.x / GAMMA
     betha = data.angular.z
@@ -181,15 +183,15 @@ def velocity(data):
     if not const.isAlmostCero(betha):
         e.rotate(betha)
         e.requestMove(("rotate",betha))
-    
+
 def bumper(data):
     if data.bumper != 0:
         e.canMove = False
         e.toMove = 0.0
-    
+
 def close(data):
     rospy.signal_shutdown("EOF")
-    
+
 if __name__ == "__main__":
     rospy.init_node("EnvironmentSimulation", anonymous=True)
     rospy.Subscriber("requestVector",String,campos)

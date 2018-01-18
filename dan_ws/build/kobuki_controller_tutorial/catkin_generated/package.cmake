@@ -10,4 +10,7 @@ set(kobuki_controller_tutorial_EXEC_DEPENDS "kobuki_msgs" "nodelet" "roscpp" "st
 set(kobuki_controller_tutorial_RUN_DEPENDS "kobuki_msgs" "nodelet" "roscpp" "std_msgs" "yocs_controllers")
 set(kobuki_controller_tutorial_TEST_DEPENDS )
 set(kobuki_controller_tutorial_DOC_DEPENDS )
+set(kobuki_controller_tutorial_URL_WEBSITE "")
+set(kobuki_controller_tutorial_URL_BUGTRACKER "")
+set(kobuki_controller_tutorial_URL_REPOSITORY "")
 set(kobuki_controller_tutorial_DEPRECATED "")

@@ -27,16 +27,16 @@ pr = Prueba(camino)
 
 def suprKey(event):
     PUB_VECTOR.publish("camposPotenciales")
-    
+
 def resetKey(event):
     PUB_RESET.publish("reset")
-    
+
 def leftKey(event):
     move("rotate",-ROTATE,"Y")
-    
+
 def rightKey(event):
     move("rotate",ROTATE,"Y")
-    
+
 def upKey(event):
     move("move",DISTANCE,"Y")
 
@@ -48,30 +48,14 @@ def calculoAngulo(x1, y1, x2, y2):
 
 
 def move(mode,c,override):
+    # # PRIMERO EN PUBLICAR
     s = const.toStringArray((mode,c,override))
-    #print "idx es " + str(idx)
-    print("El mensaje es : " + str(s))
-    #Se publica el mensaje tanto de movimiento como de rotacion
-    cadenas = ("move 1.0 Y", "move 1.0 Y", "move 1.0 Y", "move 1.0 Y")
-    rate = rospy.Rate(rospy.get_param('~hz', 10))
-    #PUB_MOVE.publish("move 1.0 Y") 
-# Pasar una lista con todas las instrucciones e irlas ejecutando cada que el usuario presiona una tecla, paso por paso
-    #lista_instrucciones.append(lista_instrucciones[0])
-    # Hacer que distancia sea proporcional para evitar cosas rars
-    ang = calculoAngulo(camino[0][0], camino[0][1], camino[-1][0], camino[-1][1])
-    dist = math.sqrt(math.pow(camino[0][0] - camino[1][0], 2) + math.pow(camino[0][1] - camino[1][1], 2))
-    camino.append(camino[0])
-    PUB_MOVE.publish(const.toStringArray(("rotate", ang, "Y")))
-    rospy.Rate(rospy.get_param('~hz', 10))
-    print "...." + str(camino[0])
-    print "El angulo es de : " + str(ang)
-    camino.pop(0)
-    PUB_MOVE.publish(const.toStringArray(("move",  dist, "Y")))
-    #if pr.rect:
-        #angulo =
-    #PUB_MOVE.publish(s)
-	 
-    
+    print(s)
+    PUB_MOVE.publish(s)
+    print "publique el mensaje"
+    # DE ESTE SE LLAMA A Environment, movemain
+
+
 def tkinterListener(data):
     data = data.data
     array = np.array(data.split(" "))
@@ -115,7 +99,7 @@ def tkinterListener(data):
         t = array[3]
         w.create_text(x,y,text=t)
 
-    
+
 def answerMove(data):
     data = data.data
     array = np.array(data.split(" "))
@@ -125,24 +109,24 @@ def answerMove(data):
         m.move(total)
     else:
         m.rotate(total)
-    
+
 def setDistances(data):
     data = data.data
     array = np.array(data.split(" "))
     data = const.fromStringArray(const.toStringArray(array))
     m.setDistances(data)
     resetImage()
-    
+
 def resetImage():
     w.delete(t)
     w.create_image(x, 0, image = m.image, anchor=NW,tag=t)
     w.update()
-    
+
 def on_closing():
     PUB_CLOSE.publish("close")
     master.destroy()
     rospy.signal_shutdown("EOF")
-    
+
 if __name__ == "__main__":
     rospy.init_node("main", anonymous=True)
     rospy.Subscriber("tkinter",String,tkinterListener)

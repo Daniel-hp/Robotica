@@ -8,7 +8,7 @@ import const
 from robot import Robot
 
 class RobotEnvironment:
-    
+
     def __init__(self,x,y,sonar):
         self.sonar = sonar
         self.rob = Robot.getRobot(x,y)
@@ -18,22 +18,22 @@ class RobotEnvironment:
             self.triangles = list()
             self.initInterface()
             self.resetInterface()
-        
+
     def __str__(self):
         return str(self.rob)
-        
+
     @staticmethod
     def getRobot(w,h,sonar):
         x = 0.5 * w
         y = 0.5 * h
         return RobotEnvironment(x,y,sonar)
-        
+
     def getDistances(self):
         return self.distance
-        
+
     def getFrontDistance(self):
         return self.distance[0]
-        
+
     def getRearDistance(self):
         if self.rob.num % 2 == 0:
             return self.distance[self.rob.num/2]
@@ -64,7 +64,7 @@ class RobotEnvironment:
             y4 = p[1]
             d = const.lineIntersection(x1,y1,x2,y2,x3,y3,x4,y4)
             return d
-        
+
     def move(self,total):
         if not self.sonar:
             alpha = self.rob.direction
@@ -74,13 +74,13 @@ class RobotEnvironment:
             self.rob.p = p + self.rob.p
             self.canvasDeleteRobot()
             self.canvasRobot()
-        
+
     def rotate(self,total):
         self.rob.direction = (self.rob.direction + total) % const.circle
         if not self.sonar:
             self.canvasDeleteRobot()
             self.canvasRobot()
-        
+
     def initInterface(self):
         w = const.WIDTH
         h = const.HEIGHT
@@ -111,7 +111,7 @@ class RobotEnvironment:
                         # Aqui indicar los obstaculos y agregarlos a la lista
                         #self.triangles.append(polygon)
                         density = density - area
-        
+
     def getDistance(self,x2,y2,n):
         w = const.WIDTH
         h = const.HEIGHT
@@ -169,7 +169,7 @@ class RobotEnvironment:
                 self.publish(("oval",p[0]-2, p[1]-2, p[0]+2, p[1]+2, "orange",t))
             else:
                 pass
-            alpha += angle 
+            alpha += angle
 
         # Dibuja los triangulos
     def canvasTriangles(self):
@@ -199,13 +199,12 @@ class RobotEnvironment:
                         y1 = obstaculos[z][y][1]
                         #alfa = k.create_line(x0, y0, x1, y1, fill="red")
                         self.publish(("line", x0, y0, x1, y1, "red", t))
-                        print "Woot " + str(x0) +" "+ str(y0)+ " "+ str(x1)+ " " + str(y1)
             '''
             x = (arr[0, 0] + arr[1, 0] + arr[2, 0]) / 3.0
             y = (arr[0, 1] + arr[1, 1] + arr[2, 1]) / 3.0
             self.publish(("text", x, y, t))
             '''
-            
+
     def canvasRobot(self):
         x = self.rob.p[0]
         y = self.rob.p[1]
@@ -240,11 +239,11 @@ class RobotEnvironment:
             t = "line" + str(n)
             self.publish(("delete",t))
             n = n - 1
-    
+
     def publish(self,t):
         s = const.toStringArray(t)
         self.PUB_TKINTER.publish(s)
-    
+
     def resetInterface(self):
         self.publish(("delete","all"))
         self.canvasTriangles()

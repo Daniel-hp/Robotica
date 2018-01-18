@@ -93,6 +93,7 @@ bump_blink_sound_controller_nodelet_EXTERNAL_OBJECTS =
 /home/dan-hp/Robotica/dan_ws/devel/lib/libbump_blink_sound_controller_nodelet.so: /opt/ros/kinetic/lib/libnodeletlib.so
 /home/dan-hp/Robotica/dan_ws/devel/lib/libbump_blink_sound_controller_nodelet.so: /opt/ros/kinetic/lib/libbondcpp.so
 /home/dan-hp/Robotica/dan_ws/devel/lib/libbump_blink_sound_controller_nodelet.so: /usr/lib/x86_64-linux-gnu/libuuid.so
+/home/dan-hp/Robotica/dan_ws/devel/lib/libbump_blink_sound_controller_nodelet.so: /usr/lib/x86_64-linux-gnu/libtinyxml2.so
 /home/dan-hp/Robotica/dan_ws/devel/lib/libbump_blink_sound_controller_nodelet.so: /opt/ros/kinetic/lib/libclass_loader.so
 /home/dan-hp/Robotica/dan_ws/devel/lib/libbump_blink_sound_controller_nodelet.so: /usr/lib/libPocoFoundation.so
 /home/dan-hp/Robotica/dan_ws/devel/lib/libbump_blink_sound_controller_nodelet.so: /usr/lib/x86_64-linux-gnu/libdl.so
@@ -102,8 +103,8 @@ bump_blink_sound_controller_nodelet_EXTERNAL_OBJECTS =
 /home/dan-hp/Robotica/dan_ws/devel/lib/libbump_blink_sound_controller_nodelet.so: /usr/lib/x86_64-linux-gnu/libboost_program_options.so
 /home/dan-hp/Robotica/dan_ws/devel/lib/libbump_blink_sound_controller_nodelet.so: /usr/lib/x86_64-linux-gnu/libtinyxml.so
 /home/dan-hp/Robotica/dan_ws/devel/lib/libbump_blink_sound_controller_nodelet.so: /opt/ros/kinetic/lib/libroscpp.so
-/home/dan-hp/Robotica/dan_ws/devel/lib/libbump_blink_sound_controller_nodelet.so: /usr/lib/x86_64-linux-gnu/libboost_signals.so
 /home/dan-hp/Robotica/dan_ws/devel/lib/libbump_blink_sound_controller_nodelet.so: /usr/lib/x86_64-linux-gnu/libboost_filesystem.so
+/home/dan-hp/Robotica/dan_ws/devel/lib/libbump_blink_sound_controller_nodelet.so: /usr/lib/x86_64-linux-gnu/libboost_signals.so
 /home/dan-hp/Robotica/dan_ws/devel/lib/libbump_blink_sound_controller_nodelet.so: /opt/ros/kinetic/lib/librosconsole.so
 /home/dan-hp/Robotica/dan_ws/devel/lib/libbump_blink_sound_controller_nodelet.so: /opt/ros/kinetic/lib/librosconsole_log4cxx.so
 /home/dan-hp/Robotica/dan_ws/devel/lib/libbump_blink_sound_controller_nodelet.so: /opt/ros/kinetic/lib/librosconsole_backend_interface.so

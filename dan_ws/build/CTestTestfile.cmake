@@ -7,6 +7,7 @@
 subdirs(gtest)
 subdirs(beginner_tutorials)
 subdirs(ejercicio)
+subdirs(turtlesim_cleaner)
 subdirs(kobuki_controller_tutorial)
 subdirs(kobuki_noisy_controller_tutorial)
 subdirs(prueba)

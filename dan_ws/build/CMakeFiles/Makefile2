@@ -1281,6 +1281,188 @@ ejercicio/preinstall:
 .PHONY : ejercicio/preinstall
 
 #=============================================================================
+# Directory level rules for directory turtlesim_cleaner
+
+# Convenience name for "all" pass in the directory.
+turtlesim_cleaner/all:
+
+.PHONY : turtlesim_cleaner/all
+
+# Convenience name for "clean" pass in the directory.
+turtlesim_cleaner/clean: turtlesim_cleaner/CMakeFiles/geometry_msgs_generate_messages_nodejs.dir/clean
+turtlesim_cleaner/clean: turtlesim_cleaner/CMakeFiles/geometry_msgs_generate_messages_eus.dir/clean
+turtlesim_cleaner/clean: turtlesim_cleaner/CMakeFiles/geometry_msgs_generate_messages_lisp.dir/clean
+turtlesim_cleaner/clean: turtlesim_cleaner/CMakeFiles/geometry_msgs_generate_messages_cpp.dir/clean
+turtlesim_cleaner/clean: turtlesim_cleaner/CMakeFiles/geometry_msgs_generate_messages_py.dir/clean
+
+.PHONY : turtlesim_cleaner/clean
+
+# Convenience name for "preinstall" pass in the directory.
+turtlesim_cleaner/preinstall:
+
+.PHONY : turtlesim_cleaner/preinstall
+
+#=============================================================================
+# Target rules for target turtlesim_cleaner/CMakeFiles/geometry_msgs_generate_messages_nodejs.dir
+
+# All Build rule for target.
+turtlesim_cleaner/CMakeFiles/geometry_msgs_generate_messages_nodejs.dir/all:
+	$(MAKE) -f turtlesim_cleaner/CMakeFiles/geometry_msgs_generate_messages_nodejs.dir/build.make turtlesim_cleaner/CMakeFiles/geometry_msgs_generate_messages_nodejs.dir/depend
+	$(MAKE) -f turtlesim_cleaner/CMakeFiles/geometry_msgs_generate_messages_nodejs.dir/build.make turtlesim_cleaner/CMakeFiles/geometry_msgs_generate_messages_nodejs.dir/build
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/home/dan-hp/Robotica/dan_ws/build/CMakeFiles --progress-num= "Built target geometry_msgs_generate_messages_nodejs"
+.PHONY : turtlesim_cleaner/CMakeFiles/geometry_msgs_generate_messages_nodejs.dir/all
+
+# Build rule for subdir invocation for target.
+turtlesim_cleaner/CMakeFiles/geometry_msgs_generate_messages_nodejs.dir/rule: cmake_check_build_system
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/dan-hp/Robotica/dan_ws/build/CMakeFiles 0
+	$(MAKE) -f CMakeFiles/Makefile2 turtlesim_cleaner/CMakeFiles/geometry_msgs_generate_messages_nodejs.dir/all
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/dan-hp/Robotica/dan_ws/build/CMakeFiles 0
+.PHONY : turtlesim_cleaner/CMakeFiles/geometry_msgs_generate_messages_nodejs.dir/rule
+
+# Convenience name for target.
+geometry_msgs_generate_messages_nodejs: turtlesim_cleaner/CMakeFiles/geometry_msgs_generate_messages_nodejs.dir/rule
+
+.PHONY : geometry_msgs_generate_messages_nodejs
+
+# clean rule for target.
+turtlesim_cleaner/CMakeFiles/geometry_msgs_generate_messages_nodejs.dir/clean:
+	$(MAKE) -f turtlesim_cleaner/CMakeFiles/geometry_msgs_generate_messages_nodejs.dir/build.make turtlesim_cleaner/CMakeFiles/geometry_msgs_generate_messages_nodejs.dir/clean
+.PHONY : turtlesim_cleaner/CMakeFiles/geometry_msgs_generate_messages_nodejs.dir/clean
+
+# clean rule for target.
+clean: turtlesim_cleaner/CMakeFiles/geometry_msgs_generate_messages_nodejs.dir/clean
+
+.PHONY : clean
+
+#=============================================================================
+# Target rules for target turtlesim_cleaner/CMakeFiles/geometry_msgs_generate_messages_eus.dir
+
+# All Build rule for target.
+turtlesim_cleaner/CMakeFiles/geometry_msgs_generate_messages_eus.dir/all:
+	$(MAKE) -f turtlesim_cleaner/CMakeFiles/geometry_msgs_generate_messages_eus.dir/build.make turtlesim_cleaner/CMakeFiles/geometry_msgs_generate_messages_eus.dir/depend
+	$(MAKE) -f turtlesim_cleaner/CMakeFiles/geometry_msgs_generate_messages_eus.dir/build.make turtlesim_cleaner/CMakeFiles/geometry_msgs_generate_messages_eus.dir/build
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/home/dan-hp/Robotica/dan_ws/build/CMakeFiles --progress-num= "Built target geometry_msgs_generate_messages_eus"
+.PHONY : turtlesim_cleaner/CMakeFiles/geometry_msgs_generate_messages_eus.dir/all
+
+# Build rule for subdir invocation for target.
+turtlesim_cleaner/CMakeFiles/geometry_msgs_generate_messages_eus.dir/rule: cmake_check_build_system
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/dan-hp/Robotica/dan_ws/build/CMakeFiles 0
+	$(MAKE) -f CMakeFiles/Makefile2 turtlesim_cleaner/CMakeFiles/geometry_msgs_generate_messages_eus.dir/all
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/dan-hp/Robotica/dan_ws/build/CMakeFiles 0
+.PHONY : turtlesim_cleaner/CMakeFiles/geometry_msgs_generate_messages_eus.dir/rule
+
+# Convenience name for target.
+geometry_msgs_generate_messages_eus: turtlesim_cleaner/CMakeFiles/geometry_msgs_generate_messages_eus.dir/rule
+
+.PHONY : geometry_msgs_generate_messages_eus
+
+# clean rule for target.
+turtlesim_cleaner/CMakeFiles/geometry_msgs_generate_messages_eus.dir/clean:
+	$(MAKE) -f turtlesim_cleaner/CMakeFiles/geometry_msgs_generate_messages_eus.dir/build.make turtlesim_cleaner/CMakeFiles/geometry_msgs_generate_messages_eus.dir/clean
+.PHONY : turtlesim_cleaner/CMakeFiles/geometry_msgs_generate_messages_eus.dir/clean
+
+# clean rule for target.
+clean: turtlesim_cleaner/CMakeFiles/geometry_msgs_generate_messages_eus.dir/clean
+
+.PHONY : clean
+
+#=============================================================================
+# Target rules for target turtlesim_cleaner/CMakeFiles/geometry_msgs_generate_messages_lisp.dir
+
+# All Build rule for target.
+turtlesim_cleaner/CMakeFiles/geometry_msgs_generate_messages_lisp.dir/all:
+	$(MAKE) -f turtlesim_cleaner/CMakeFiles/geometry_msgs_generate_messages_lisp.dir/build.make turtlesim_cleaner/CMakeFiles/geometry_msgs_generate_messages_lisp.dir/depend
+	$(MAKE) -f turtlesim_cleaner/CMakeFiles/geometry_msgs_generate_messages_lisp.dir/build.make turtlesim_cleaner/CMakeFiles/geometry_msgs_generate_messages_lisp.dir/build
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/home/dan-hp/Robotica/dan_ws/build/CMakeFiles --progress-num= "Built target geometry_msgs_generate_messages_lisp"
+.PHONY : turtlesim_cleaner/CMakeFiles/geometry_msgs_generate_messages_lisp.dir/all
+
+# Build rule for subdir invocation for target.
+turtlesim_cleaner/CMakeFiles/geometry_msgs_generate_messages_lisp.dir/rule: cmake_check_build_system
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/dan-hp/Robotica/dan_ws/build/CMakeFiles 0
+	$(MAKE) -f CMakeFiles/Makefile2 turtlesim_cleaner/CMakeFiles/geometry_msgs_generate_messages_lisp.dir/all
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/dan-hp/Robotica/dan_ws/build/CMakeFiles 0
+.PHONY : turtlesim_cleaner/CMakeFiles/geometry_msgs_generate_messages_lisp.dir/rule
+
+# Convenience name for target.
+geometry_msgs_generate_messages_lisp: turtlesim_cleaner/CMakeFiles/geometry_msgs_generate_messages_lisp.dir/rule
+
+.PHONY : geometry_msgs_generate_messages_lisp
+
+# clean rule for target.
+turtlesim_cleaner/CMakeFiles/geometry_msgs_generate_messages_lisp.dir/clean:
+	$(MAKE) -f turtlesim_cleaner/CMakeFiles/geometry_msgs_generate_messages_lisp.dir/build.make turtlesim_cleaner/CMakeFiles/geometry_msgs_generate_messages_lisp.dir/clean
+.PHONY : turtlesim_cleaner/CMakeFiles/geometry_msgs_generate_messages_lisp.dir/clean
+
+# clean rule for target.
+clean: turtlesim_cleaner/CMakeFiles/geometry_msgs_generate_messages_lisp.dir/clean
+
+.PHONY : clean
+
+#=============================================================================
+# Target rules for target turtlesim_cleaner/CMakeFiles/geometry_msgs_generate_messages_cpp.dir
+
+# All Build rule for target.
+turtlesim_cleaner/CMakeFiles/geometry_msgs_generate_messages_cpp.dir/all:
+	$(MAKE) -f turtlesim_cleaner/CMakeFiles/geometry_msgs_generate_messages_cpp.dir/build.make turtlesim_cleaner/CMakeFiles/geometry_msgs_generate_messages_cpp.dir/depend
+	$(MAKE) -f turtlesim_cleaner/CMakeFiles/geometry_msgs_generate_messages_cpp.dir/build.make turtlesim_cleaner/CMakeFiles/geometry_msgs_generate_messages_cpp.dir/build
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/home/dan-hp/Robotica/dan_ws/build/CMakeFiles --progress-num= "Built target geometry_msgs_generate_messages_cpp"
+.PHONY : turtlesim_cleaner/CMakeFiles/geometry_msgs_generate_messages_cpp.dir/all
+
+# Build rule for subdir invocation for target.
+turtlesim_cleaner/CMakeFiles/geometry_msgs_generate_messages_cpp.dir/rule: cmake_check_build_system
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/dan-hp/Robotica/dan_ws/build/CMakeFiles 0
+	$(MAKE) -f CMakeFiles/Makefile2 turtlesim_cleaner/CMakeFiles/geometry_msgs_generate_messages_cpp.dir/all
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/dan-hp/Robotica/dan_ws/build/CMakeFiles 0
+.PHONY : turtlesim_cleaner/CMakeFiles/geometry_msgs_generate_messages_cpp.dir/rule
+
+# Convenience name for target.
+geometry_msgs_generate_messages_cpp: turtlesim_cleaner/CMakeFiles/geometry_msgs_generate_messages_cpp.dir/rule
+
+.PHONY : geometry_msgs_generate_messages_cpp
+
+# clean rule for target.
+turtlesim_cleaner/CMakeFiles/geometry_msgs_generate_messages_cpp.dir/clean:
+	$(MAKE) -f turtlesim_cleaner/CMakeFiles/geometry_msgs_generate_messages_cpp.dir/build.make turtlesim_cleaner/CMakeFiles/geometry_msgs_generate_messages_cpp.dir/clean
+.PHONY : turtlesim_cleaner/CMakeFiles/geometry_msgs_generate_messages_cpp.dir/clean
+
+# clean rule for target.
+clean: turtlesim_cleaner/CMakeFiles/geometry_msgs_generate_messages_cpp.dir/clean
+
+.PHONY : clean
+
+#=============================================================================
+# Target rules for target turtlesim_cleaner/CMakeFiles/geometry_msgs_generate_messages_py.dir
+
+# All Build rule for target.
+turtlesim_cleaner/CMakeFiles/geometry_msgs_generate_messages_py.dir/all:
+	$(MAKE) -f turtlesim_cleaner/CMakeFiles/geometry_msgs_generate_messages_py.dir/build.make turtlesim_cleaner/CMakeFiles/geometry_msgs_generate_messages_py.dir/depend
+	$(MAKE) -f turtlesim_cleaner/CMakeFiles/geometry_msgs_generate_messages_py.dir/build.make turtlesim_cleaner/CMakeFiles/geometry_msgs_generate_messages_py.dir/build
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/home/dan-hp/Robotica/dan_ws/build/CMakeFiles --progress-num= "Built target geometry_msgs_generate_messages_py"
+.PHONY : turtlesim_cleaner/CMakeFiles/geometry_msgs_generate_messages_py.dir/all
+
+# Build rule for subdir invocation for target.
+turtlesim_cleaner/CMakeFiles/geometry_msgs_generate_messages_py.dir/rule: cmake_check_build_system
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/dan-hp/Robotica/dan_ws/build/CMakeFiles 0
+	$(MAKE) -f CMakeFiles/Makefile2 turtlesim_cleaner/CMakeFiles/geometry_msgs_generate_messages_py.dir/all
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/dan-hp/Robotica/dan_ws/build/CMakeFiles 0
+.PHONY : turtlesim_cleaner/CMakeFiles/geometry_msgs_generate_messages_py.dir/rule
+
+# Convenience name for target.
+geometry_msgs_generate_messages_py: turtlesim_cleaner/CMakeFiles/geometry_msgs_generate_messages_py.dir/rule
+
+.PHONY : geometry_msgs_generate_messages_py
+
+# clean rule for target.
+turtlesim_cleaner/CMakeFiles/geometry_msgs_generate_messages_py.dir/clean:
+	$(MAKE) -f turtlesim_cleaner/CMakeFiles/geometry_msgs_generate_messages_py.dir/build.make turtlesim_cleaner/CMakeFiles/geometry_msgs_generate_messages_py.dir/clean
+.PHONY : turtlesim_cleaner/CMakeFiles/geometry_msgs_generate_messages_py.dir/clean
+
+# clean rule for target.
+clean: turtlesim_cleaner/CMakeFiles/geometry_msgs_generate_messages_py.dir/clean
+
+.PHONY : clean
+
+#=============================================================================
 # Directory level rules for directory kobuki_controller_tutorial
 
 # Convenience name for "all" pass in the directory.
